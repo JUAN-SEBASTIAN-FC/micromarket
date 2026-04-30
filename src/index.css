@@ -1,0 +1,144 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+  
+  /* Premium Design Tokens */
+  --color-brand: #6366f1;
+  --color-brand-light: #818cf8;
+  --color-brand-dark: #4f46e5;
+  
+  /* Midnight Palette */
+  --color-bg-dark: #020617;
+  --color-surface-dark: #0f172a;
+  --color-border-dark: rgba(255, 255, 255, 0.06);
+  
+  /* Light Palette */
+  --color-bg-light: #f8fafc;
+  --color-surface-light: #ffffff;
+  --color-border-light: rgba(0, 0, 0, 0.05);
+
+  /* Shadow levels */
+  --shadow-premium: 0 20px 50px -12px rgba(0, 0, 0, 0.1);
+  --shadow-glow: 0 0 40px rgba(99, 102, 241, 0.15);
+  --shadow-glow-strong: 0 0 60px rgba(99, 102, 241, 0.25);
+}
+
+body {
+  @apply font-sans antialiased bg-slate-50 text-slate-900 dark:bg-[#020617] dark:text-slate-100 transition-colors duration-500 selection:bg-indigo-500 selection:text-white min-h-screen;
+}
+
+html {
+  @apply bg-slate-50 dark:bg-[#020617] transition-colors duration-500;
+}
+
+h1, h2, h3, h4, h5, h6, .font-display {
+  @apply font-display tracking-tight;
+}
+
+/* Premium Glassmorphism */
+.glass-panel {
+  @apply bg-white/70 dark:bg-[#0f172a]/60 backdrop-blur-2xl border border-white/40 dark:border-white/5 shadow-2xl shadow-slate-200/50 dark:shadow-none;
+}
+
+.glass-nav {
+  @apply bg-white/80 dark:bg-[#020617]/80 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-800/50;
+}
+
+.glass-card {
+  @apply bg-white/60 dark:bg-[#0f172a]/40 backdrop-blur-lg border border-white/50 dark:border-white/5 shadow-lg shadow-slate-200/40 dark:shadow-none transition-all duration-500;
+}
+
+/* Interactive Elements */
+.btn-primary {
+  @apply bg-indigo-600 text-white font-bold px-6 py-3 rounded-2xl shadow-lg shadow-indigo-600/20 hover:bg-indigo-500 hover:shadow-indigo-600/40 hover:-translate-y-0.5 active:scale-95 transition-all duration-300;
+}
+
+.input-premium {
+  @apply bg-white/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl px-5 py-4 text-sm focus:bg-white dark:focus:bg-slate-900 focus:ring-4 focus:ring-indigo-600/10 focus:border-indigo-500 transition-all outline-none;
+}
+
+/* Sleek Scrollbar */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #e2e8f0;
+  border-radius: 20px;
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #1e293b;
+}
+
+/* Page Transitions */
+.page-fade-in {
+  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Typography Enhancements */
+.text-balance {
+  text-wrap: balance;
+}
+
+.tracking-premium {
+  letter-spacing: -0.04em;
+}
+
+.leading-tighter {
+  line-height: 1.1;
+}
+
+/* Atmospheric Elements */
+.ambient-glow {
+  @apply absolute rounded-full blur-[120px] opacity-20 pointer-events-none;
+}
+
+.glow-indigo {
+  @apply bg-indigo-500 shadow-glow;
+}
+
+.glow-purple {
+  @apply bg-purple-500 shadow-glow;
+}
+
+/* Card Enhancements */
+.premium-border {
+  @apply border border-white/5 dark:border-white/10;
+}
+
+.hover-lift {
+  @apply transition-all duration-500 hover:-translate-y-1 hover:shadow-premium;
+}
+
+.mono-value {
+  @apply font-mono tracking-tight font-medium;
+}
+
+@keyframes shimmer {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}

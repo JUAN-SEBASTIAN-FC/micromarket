@@ -1,0 +1,13 @@
+{
+  "css.customData": [],
+  "css.validate": false,
+  "scss.validate": false,
+  "less.validate": false,
+  "editor.quickSuggestions": {
+    "strings": "on"
+  },
+  "tailwindCSS.experimental.classRegex": [],
+  "files.associations": {
+    "*.css": "tailwindcss"
+  }
+}
