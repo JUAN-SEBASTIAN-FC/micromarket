@@ -1,8 +1,8 @@
 import React from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
-import { 
-  Search, 
-  Bell, 
+import {
+  Search,
+  Bell,
   ClipboardList,
   MessageSquare,
   Wallet,
@@ -77,7 +77,7 @@ const NotificationBell = () => {
   return (
     <>
       <div className="relative" ref={dropdownRef}>
-        <button 
+        <button
           onClick={() => setIsOpen(!isOpen)}
           className="w-11 h-11 flex items-center justify-center text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 bg-white/50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 rounded-full transition-all relative border border-slate-200/50 dark:border-slate-700/50 shadow-sm"
         >
@@ -89,7 +89,7 @@ const NotificationBell = () => {
 
         <AnimatePresence>
           {isOpen && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 10, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
@@ -98,7 +98,7 @@ const NotificationBell = () => {
               <div className="p-5 border-b border-white/5 flex items-center justify-between bg-white/5">
                 <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">Notificaciones</h3>
                 {unreadCount > 0 && (
-                  <button 
+                  <button
                     onClick={handleMarkAllRead}
                     className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 uppercase tracking-wider transition-colors"
                   >
@@ -114,7 +114,7 @@ const NotificationBell = () => {
                 ) : (
                   <div className="divide-y divide-white/5">
                     {activeNotifs.map((notif) => (
-                      <div 
+                      <div
                         key={notif.id}
                         onClick={() => handleNotificationClick(notif)}
                         className="p-5 flex gap-4 cursor-pointer hover:bg-white/5 dark:hover:bg-white/5 transition-all group bg-indigo-500/5"
@@ -130,12 +130,12 @@ const NotificationBell = () => {
                 )}
               </div>
               <div className="p-4 bg-slate-50/50 dark:bg-white/5 border-t border-white/5">
-                 <button 
-                   onClick={() => { setIsOpen(false); setIsHistoryOpen(true); }}
-                   className="w-full py-2 text-[10px] font-black text-slate-400 hover:text-slate-900 dark:hover:text-white uppercase tracking-[2px] transition-colors"
-                 >
-                    Ver Todo el Historial
-                 </button>
+                <button
+                  onClick={() => { setIsOpen(false); setIsHistoryOpen(true); }}
+                  className="w-full py-2 text-[10px] font-black text-slate-400 hover:text-slate-900 dark:hover:text-white uppercase tracking-[2px] transition-colors"
+                >
+                  Ver Todo el Historial
+                </button>
               </div>
             </motion.div>
           )}
@@ -163,14 +163,14 @@ const NotificationBell = () => {
                 </div>
                 <div className="flex items-center gap-4">
                   {unreadCount > 0 && (
-                    <button 
+                    <button
                       onClick={(e) => { handleMarkAllRead(e); setIsHistoryOpen(false); }}
                       className="px-6 py-3 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest transition-all"
                     >
                       Marcar Todo Leído
                     </button>
                   )}
-                  <button 
+                  <button
                     onClick={() => setIsHistoryOpen(false)}
                     className="w-12 h-12 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-red-500 hover:text-white text-slate-500 transition-all"
                   >
@@ -178,7 +178,7 @@ const NotificationBell = () => {
                   </button>
                 </div>
               </div>
-              
+
               <div className="flex-1 overflow-y-auto p-4 md:p-6 custom-scrollbar bg-slate-50/50 dark:bg-[#0f172a]/30">
                 {activeNotifs.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-20 text-center">
@@ -191,7 +191,7 @@ const NotificationBell = () => {
                 ) : (
                   <div className="space-y-3">
                     {activeNotifs.map((notif) => (
-                      <div 
+                      <div
                         key={notif.id}
                         onClick={() => handleNotificationClick(notif)}
                         className="p-6 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm hover:shadow-md transition-all cursor-pointer group flex items-start gap-5 hover:border-indigo-500/30 dark:hover:border-indigo-500/30"
@@ -211,6 +211,14 @@ const NotificationBell = () => {
                     ))}
                   </div>
                 )}
+              </div>
+              <div className="p-6 border-t border-slate-100 dark:border-white/5 bg-white dark:bg-slate-900 flex justify-center shrink-0">
+                <button
+                  onClick={() => setIsHistoryOpen(false)}
+                  className="px-8 py-3 rounded-2xl bg-indigo-600 text-white text-[10px] font-black uppercase tracking-[2px] hover:bg-indigo-700 hover:scale-105 active:scale-95 transition-all shadow-lg shadow-indigo-600/20"
+                >
+                  Cerrar Historial
+                </button>
               </div>
             </motion.div>
           </div>
@@ -240,10 +248,10 @@ export const TopNavLayout = ({ children }: { children: React.ReactNode }) => {
       <header className="h-20 glass-nav px-4 md:px-8 flex items-center justify-between shrink-0 z-50 sticky top-0">
         <div className="flex items-center gap-8">
           <Link to="/" className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter font-display flex items-center gap-3">
-             <div className="w-8 h-8 bg-gradient-to-br from-indigo-600 to-violet-700 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-600/20 shrink-0">
-               <TrendingUp className="w-5 h-5" />
-             </div>
-             MicroMarket
+            <div className="w-8 h-8 bg-gradient-to-br from-indigo-600 to-violet-700 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-600/20 shrink-0">
+              <TrendingUp className="w-5 h-5" />
+            </div>
+            MicroMarket
           </Link>
           <nav className="hidden md:flex items-center gap-8 ml-4">
             <NavLink to="/explore" className="text-sm font-bold text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Explorar</NavLink>
@@ -251,7 +259,7 @@ export const TopNavLayout = ({ children }: { children: React.ReactNode }) => {
             <NavLink to="/admin/metrics" className="text-sm font-bold text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Clasificación</NavLink>
           </nav>
         </div>
-        
+
         <div className="flex items-center gap-5">
           <button onClick={handleThemeToggle} className="hidden sm:flex w-10 h-10 rounded-full items-center justify-center text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
             <Moon className="w-5 h-5" />
@@ -269,29 +277,29 @@ export const TopNavLayout = ({ children }: { children: React.ReactNode }) => {
             <>
               <NotificationBell />
               <Link to="/profile" className="w-10 h-10 rounded-full bg-slate-200 overflow-hidden cursor-pointer border-2 border-white dark:border-slate-800 shadow-md hover:scale-105 transition-transform">
-                 <img src={profile?.photoUrl || user?.photoURL || "https://i.pravatar.cc/150?u=a042581f4e29026024d"} alt="Profile" className="w-full h-full object-cover" />
+                <img src={profile?.photoUrl || user?.photoURL || "https://i.pravatar.cc/150?u=a042581f4e29026024d"} alt="Profile" className="w-full h-full object-cover" />
               </Link>
             </>
           )}
         </div>
       </header>
-      
+
       <main className="flex-1 flex flex-col">
         {children}
       </main>
 
       <footer className="py-12 glass-nav mt-auto border-t-0 border-slate-200/50 dark:border-slate-800/50 relative z-10">
-         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row gap-6 justify-between items-center text-xs font-bold text-slate-500 dark:text-slate-400">
-            <div className="flex items-center gap-2">
-               <div className="w-6 h-6 bg-indigo-600 rounded-lg flex items-center justify-center text-white"><TrendingUp className="w-3 h-3" /></div>
-               <span>&copy; 2026 MicroMarket. Ejecución Impecable.</span>
-            </div>
-            <div className="flex gap-6">
-               <a href="#" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Términos</a>
-               <a href="#" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Privacidad</a>
-               <a href="#" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Soporte</a>
-            </div>
-         </div>
+        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row gap-6 justify-between items-center text-xs font-bold text-slate-500 dark:text-slate-400">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 bg-indigo-600 rounded-lg flex items-center justify-center text-white"><TrendingUp className="w-3 h-3" /></div>
+            <span>&copy; 2026 MicroMarket. Ejecución Impecable.</span>
+          </div>
+          <div className="flex gap-6">
+            <a href="#" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Términos</a>
+            <a href="#" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Privacidad</a>
+            <a href="#" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Soporte</a>
+          </div>
+        </div>
       </footer>
     </div>
   );
@@ -307,17 +315,17 @@ export const Sidebar = () => {
     <aside className="hidden lg:flex flex-col w-80 glass-panel m-6 rounded-[2.5rem] overflow-hidden shrink-0 transition-all duration-500 z-40 relative border-white/5">
       {/* Decorative Glow */}
       <div className="absolute -top-20 -left-20 w-40 h-40 bg-indigo-600/10 rounded-full blur-[80px] pointer-events-none" />
-      
+
       {/* Logo Section */}
       <div className="p-10 flex items-center gap-4 shrink-0 relative z-10">
         <div className="w-14 h-14 bg-gradient-to-br from-indigo-600 to-violet-700 rounded-2xl flex items-center justify-center text-white shadow-2xl shadow-indigo-600/30 group cursor-pointer transition-transform hover:scale-105 active:scale-95">
-           <TrendingUp className="w-7 h-7 transition-transform group-hover:rotate-12" />
+          <TrendingUp className="w-7 h-7 transition-transform group-hover:rotate-12" />
         </div>
         <Link to="/" className="text-slate-900 dark:text-white font-black text-2xl tracking-tighter font-display leading-none">
           Micro<span className="text-indigo-600 dark:text-indigo-500">Market</span>
         </Link>
       </div>
-      
+
       <div className="flex-1 px-5 py-2 space-y-10 overflow-y-auto custom-scrollbar relative z-10">
         <section>
           <h3 className="text-[10px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-[4px] mb-6 px-5 font-display">Operaciones</h3>
@@ -346,10 +354,10 @@ export const Sidebar = () => {
       <div className="p-4 shrink-0 border-t border-white/20 dark:border-white/5">
         <Link to="/profile" className="p-3 rounded-[2rem] bg-white/50 dark:bg-slate-800/30 hover:bg-white dark:hover:bg-slate-800 border border-transparent hover:border-slate-200 dark:hover:border-slate-700 flex items-center gap-3 transition-all group relative cursor-pointer">
           <div className="relative shrink-0">
-            <img 
-              src={profile?.photoUrl || user?.photoURL || "https://i.pravatar.cc/150?u=a042581f4e29026024d"} 
-              alt="Avatar" 
-              className="w-12 h-12 rounded-2xl object-cover shadow-sm group-hover:scale-105 transition-transform" 
+            <img
+              src={profile?.photoUrl || user?.photoURL || "https://i.pravatar.cc/150?u=a042581f4e29026024d"}
+              alt="Avatar"
+              className="w-12 h-12 rounded-2xl object-cover shadow-sm group-hover:scale-105 transition-transform"
             />
             {profile?.status === 'approved' && (
               <div className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full border-2 border-white dark:border-[#0f172a] flex items-center justify-center text-white shadow-sm">
@@ -357,7 +365,7 @@ export const Sidebar = () => {
               </div>
             )}
           </div>
-          
+
           <div className="flex flex-col min-w-0">
             <span className="text-slate-900 dark:text-white text-sm font-black truncate tracking-tight font-display leading-none mb-1">
               {profile?.name || "Usuario"}
@@ -366,12 +374,12 @@ export const Sidebar = () => {
               {profile?.role === 'admin' ? 'Master Admin' : profile?.isPlus ? 'Premium' : 'Estándar'}
             </span>
           </div>
-          
-          <button 
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); logout(); }} 
+
+          <button
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); logout(); }}
             className="ml-auto w-8 h-8 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-all"
           >
-             <LogOut className="w-4 h-4" />
+            <LogOut className="w-4 h-4" />
           </button>
         </Link>
       </div>
@@ -380,12 +388,12 @@ export const Sidebar = () => {
 };
 
 const SidebarLink = ({ to, icon, label }: { to: string, icon: React.ReactNode, label: string }) => (
-  <NavLink 
-    to={to} 
+  <NavLink
+    to={to}
     className={({ isActive }) => cn(
       "flex items-center gap-4 px-5 py-3.5 rounded-[1.25rem] text-sm font-black transition-all group relative overflow-hidden",
-      isActive 
-        ? "bg-indigo-600 text-white shadow-xl shadow-indigo-600/30 translate-x-1" 
+      isActive
+        ? "bg-indigo-600 text-white shadow-xl shadow-indigo-600/30 translate-x-1"
         : "text-slate-500 dark:text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/5 border border-transparent"
     )}
   >
@@ -397,7 +405,7 @@ const SidebarLink = ({ to, icon, label }: { to: string, icon: React.ReactNode, l
     {/* Active Glow Indicator */}
     <NavLink to={to}>
       {({ isActive }) => isActive && (
-        <motion.div 
+        <motion.div
           layoutId="sidebar-glow"
           className="absolute left-0 w-1 h-6 bg-white/50 rounded-full blur-[2px]"
           initial={{ opacity: 0 }}
@@ -415,11 +423,11 @@ export const BottomNav = () => {
       <div className="flex items-center justify-around px-2 h-16">
         <BottomNavLink to="/explore" icon={<Search className="w-6 h-6" />} label="Explorar" />
         <BottomNavLink to="/my-tasks" icon={<ClipboardList className="w-6 h-6" />} label="Mis Tareas" />
-        
+
         {/* Floating Action Button for Post Task */}
         <div className="relative -top-5">
-          <NavLink 
-            to="/post-task" 
+          <NavLink
+            to="/post-task"
             className="w-14 h-14 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-full flex items-center justify-center text-white shadow-lg shadow-indigo-600/30 hover:scale-105 active:scale-95 transition-all border-4 border-slate-50 dark:border-[#020617]"
           >
             <PlusCircle className="w-7 h-7" />
@@ -438,12 +446,12 @@ const BottomNavLink = ({ to, icon, label }: { to: string, icon: React.ReactNode,
   const isActive = location.pathname === to;
 
   return (
-    <Link 
-      to={to} 
+    <Link
+      to={to}
       className={cn(
         "flex items-center gap-4 px-5 py-4 rounded-2xl transition-all duration-300 group relative",
-        isActive 
-          ? "bg-indigo-600 text-white shadow-xl shadow-indigo-600/20" 
+        isActive
+          ? "bg-indigo-600 text-white shadow-xl shadow-indigo-600/20"
           : "text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white"
       )}
     >
@@ -455,7 +463,7 @@ const BottomNavLink = ({ to, icon, label }: { to: string, icon: React.ReactNode,
       </div>
       <span className="text-sm font-bold tracking-tight">{label}</span>
       {isActive && (
-        <motion.div 
+        <motion.div
           layoutId="sidebar-active"
           className="absolute left-0 w-1 h-6 bg-white rounded-full -translate-x-1"
         />
@@ -481,13 +489,13 @@ export const Header = () => {
     <header className="h-24 lg:h-28 glass-nav px-6 lg:px-12 flex items-center justify-between shrink-0 z-30 transition-all border-b-0 lg:border-b-0 sticky top-0">
       <div className="flex items-center gap-4 lg:hidden">
         <Link to="/" className="w-12 h-12 bg-gradient-to-br from-indigo-600 to-violet-700 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-indigo-600/30">
-           <TrendingUp className="w-6 h-6" />
+          <TrendingUp className="w-6 h-6" />
         </Link>
       </div>
-      
+
       <div className="flex items-center gap-8 ml-auto w-full lg:w-auto justify-end">
         <div className="flex-1" /> {/* Spacer */}
-        
+
         <div className="flex items-center gap-4">
           <button onClick={handleThemeToggle} className="w-12 h-12 flex items-center justify-center text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 bg-white dark:bg-slate-900 hover:bg-white dark:hover:bg-slate-800 rounded-full transition-all relative border border-slate-200/50 dark:border-white/5 shadow-xl shadow-slate-200/20 dark:shadow-none group">
             <Moon className="w-5 h-5 transition-transform group-hover:-rotate-12" />
@@ -495,10 +503,10 @@ export const Header = () => {
           <NotificationBell />
           <div className="h-8 w-px bg-slate-200 dark:bg-white/10 mx-2 hidden sm:block" />
           <Link to="/profile" className="w-12 h-12 rounded-2xl bg-slate-200 overflow-hidden cursor-pointer border-2 border-white dark:border-white/10 shadow-xl hover:scale-105 transition-all shrink-0">
-             <img src={profile?.photoUrl || user?.photoURL || "https://i.pravatar.cc/150?u=a042581f4e29026024d"} alt="Profile" className="w-full h-full object-cover" />
+            <img src={profile?.photoUrl || user?.photoURL || "https://i.pravatar.cc/150?u=a042581f4e29026024d"} alt="Profile" className="w-full h-full object-cover" />
           </Link>
-          <NavLink 
-            to="/post-task" 
+          <NavLink
+            to="/post-task"
             className="hidden sm:flex bg-indigo-600 text-white px-10 h-12 items-center justify-center rounded-2xl text-[10px] font-black uppercase tracking-[2px] shadow-2xl shadow-indigo-600/30 hover:shadow-indigo-600/50 hover:-translate-y-0.5 transition-all active:scale-95 gap-3 ml-2 group"
           >
             <PlusCircle className="w-4 h-4 transition-transform group-hover:rotate-90" />
@@ -519,7 +527,7 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
       <Sidebar />
       <main className="flex-1 flex flex-col min-w-0 h-screen relative">
         <Header />
-        
+
         {isPending && (
           <div className="mx-6 lg:mx-12 mt-4 px-8 py-4 bg-amber-500/5 border border-amber-500/20 rounded-3xl flex items-center justify-between gap-6 animate-in fade-in slide-in-from-top-4 duration-700 backdrop-blur-md">
             <div className="flex items-center gap-4">
