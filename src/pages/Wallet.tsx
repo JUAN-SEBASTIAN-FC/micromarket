@@ -43,21 +43,21 @@ export default function Wallet() {
       <div className="absolute top-[10%] right-[-5%] w-[40%] h-[40%] bg-blue-600/5 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[20%] left-[-5%] w-[30%] h-[30%] bg-emerald-600/5 rounded-full blur-[100px] pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-6 pt-16 relative z-10">
+      <div className="max-w-7xl mx-auto page-padding pt-8 sm:pt-12 relative z-10">
         {/* Header Section */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-12">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-8 sm:mb-10">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
           >
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                <WalletIcon className="w-5 h-5 text-white" />
+            <div className="flex items-center gap-2.5 mb-2">
+              <div className="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center shadow-md shadow-indigo-500/20">
+                <WalletIcon className="w-4 h-4 text-white" />
               </div>
               <span className="text-[10px] font-bold text-indigo-500 uppercase tracking-[0.2em]">Financial Hub</span>
             </div>
-            <h1 className="text-4xl font-bold text-slate-900 dark:text-white tracking-tight">Nexus Vault</h1>
-            <p className="text-slate-500 dark:text-slate-400 mt-2 text-sm max-w-md">
+            <h1 className="page-title">Nexus Vault</h1>
+            <p className="page-subtitle max-w-md">
               Gestiona tus activos y monitorea tus ingresos en la red central de MicroMarket.
             </p>
           </motion.div>
@@ -65,15 +65,15 @@ export default function Wallet() {
           <motion.div 
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="flex gap-3"
+            className="flex gap-2.5 w-full sm:w-auto"
           >
-            <button className="flex items-center gap-2 px-6 h-12 rounded-2xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-white font-bold text-xs uppercase tracking-wider hover:bg-slate-50 dark:hover:bg-white/10 transition-all shadow-sm">
+            <button className="flex items-center gap-2 px-4 sm:px-5 h-10 sm:h-11 rounded-[1rem] bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-white font-bold text-xs uppercase tracking-wider hover:bg-slate-50 dark:hover:bg-white/10 transition-all shadow-sm flex-1 sm:flex-none justify-center">
               <Download className="w-4 h-4" />
               Reporte
             </button>
             <button 
               disabled={isPending}
-              className="flex items-center gap-2 px-8 h-12 rounded-2xl bg-indigo-600 text-white font-bold text-xs uppercase tracking-wider hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-500/25 active:scale-95 disabled:opacity-50 disabled:grayscale"
+              className="flex items-center gap-2 px-5 sm:px-7 h-10 sm:h-11 rounded-[1rem] bg-indigo-600 text-white font-bold text-xs uppercase tracking-wider hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/25 active:scale-95 disabled:opacity-50 disabled:grayscale flex-1 sm:flex-none justify-center"
             >
               {isPending ? <Clock className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
               {isPending ? 'Validando' : 'Retirar Fondos'}
@@ -107,17 +107,17 @@ export default function Wallet() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="glass-panel rounded-[2.5rem] p-8 border-white/5 overflow-hidden group"
+              className="glass-panel rounded-[1.5rem] p-5 sm:p-7 border-white/5 overflow-hidden group"
             >
-              <div className="flex justify-between items-start mb-10">
+              <div className="flex justify-between items-start mb-6">
                 <div>
-                  <h3 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
-                    <TrendingUp className="w-3.5 h-3.5 text-indigo-500" />
+                  <h3 className="label-eyebrow mb-3 flex items-center gap-2">
+                    <TrendingUp className="w-4 h-4 text-indigo-500" />
                     Proyección de Ingresos
                   </h3>
                   <div className="flex items-baseline gap-2">
-                    <p className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">$3,842.00</p>
-                    <span className="text-emerald-500 text-xs font-bold font-mono">+24.8%</span>
+                    <p className="text-4xl font-black text-slate-950 dark:text-white tracking-tight font-mono">$3,842.00</p>
+                    <span className="text-emerald-600 dark:text-emerald-400 text-sm font-black font-mono">+24.8%</span>
                   </div>
                 </div>
                 <div className="flex gap-2">
@@ -186,10 +186,10 @@ export default function Wallet() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
-              className="glass-panel rounded-[2.5rem] p-8 border-white/5 flex flex-col h-full"
+              className="glass-panel rounded-[1.5rem] p-5 sm:p-7 border-white/5 flex flex-col"
             >
-              <div className="flex items-center justify-between mb-8">
-                <h3 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] flex items-center gap-2">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="label-eyebrow flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-emerald-500" />
                   Seguridad Nexus
                 </h3>
@@ -199,8 +199,8 @@ export default function Wallet() {
               <div className="space-y-8 flex-1">
                 <div className="space-y-4">
                   <div className="flex justify-between items-end">
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Nivel de Confianza</span>
-                    <span className="text-xl font-bold text-slate-900 dark:text-white font-mono leading-none">98.4%</span>
+                    <span className="label-eyebrow">Nivel de Confianza</span>
+                    <span className="text-2xl font-black text-slate-950 dark:text-white font-mono leading-none">98.4%</span>
                   </div>
                   <div className="relative h-2 w-full bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden">
                     <motion.div 
@@ -213,7 +213,7 @@ export default function Wallet() {
                 </div>
 
                 <div className="space-y-4">
-                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Métodos Vinculados</p>
+                   <p className="label-eyebrow mb-4">Métodos Vinculados</p>
                    <div className="space-y-3">
                       <PremiumPaymentCard 
                         name="Visa Infinite"
@@ -234,7 +234,7 @@ export default function Wallet() {
                 </div>
               </div>
 
-              <div className="mt-10 p-5 rounded-2xl bg-indigo-600/5 border border-indigo-500/10 relative overflow-hidden group">
+              <div className="mt-6 p-4 rounded-xl bg-indigo-600/5 border border-indigo-500/10 relative overflow-hidden group">
                 <div className="absolute top-0 right-0 p-3 opacity-20 group-hover:scale-110 transition-transform">
                   <Clock className="w-12 h-12 text-indigo-500" />
                 </div>
@@ -252,14 +252,14 @@ export default function Wallet() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="mt-12"
+          className="mt-8"
         >
-          <div className="flex justify-between items-center mb-8 px-4">
+          <div className="flex justify-between items-center mb-5">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-white/5 flex items-center justify-center">
-                <History className="w-4 h-4 text-slate-500" />
+                <History className="w-5 h-5 text-indigo-500" />
               </div>
-              <h3 className="text-sm font-bold text-slate-800 dark:text-white uppercase tracking-widest">Historial de Operaciones</h3>
+              <h3 className="text-[15px] font-black text-slate-950 dark:text-white uppercase tracking-[0.1em]">Historial de Operaciones</h3>
             </div>
             <button className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest flex items-center gap-2 group">
               Ver Libro Mayor Completo
@@ -267,7 +267,7 @@ export default function Wallet() {
             </button>
           </div>
 
-          <div className="glass-panel rounded-[2.5rem] border-white/5 overflow-hidden">
+          <div className="glass-panel rounded-[1.5rem] border-white/5 overflow-hidden">
             <div className="divide-y divide-slate-100 dark:divide-white/5">
               <TransactionRow 
                 type="Ingreso"
@@ -317,9 +317,9 @@ export default function Wallet() {
 function BalanceVaultCard({ label, amount, trend, isPositive, variant }: any) {
   return (
     <motion.div 
-      whileHover={{ y: -5 }}
+      whileHover={{ y: -3 }}
       className={cn(
-        "relative rounded-[2.5rem] p-8 overflow-hidden border transition-all duration-500 group",
+        "relative rounded-[1.5rem] p-5 sm:p-7 overflow-hidden border transition-all duration-500 group",
         variant === 'primary' 
           ? "bg-[#020617] border-white/10 shadow-2xl shadow-indigo-500/10" 
           : "glass-panel border-white/5 shadow-xl"
@@ -332,7 +332,7 @@ function BalanceVaultCard({ label, amount, trend, isPositive, variant }: any) {
       )} />
 
       <div className="relative z-10">
-        <div className="flex justify-between items-start mb-12">
+        <div className="flex justify-between items-start mb-6">
           <div className={cn(
             "w-12 h-12 rounded-2xl flex items-center justify-center border",
             variant === 'primary' 
@@ -350,9 +350,9 @@ function BalanceVaultCard({ label, amount, trend, isPositive, variant }: any) {
         </div>
 
         <div>
-          <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-2">{label}</h4>
+          <h4 className="label-eyebrow mb-2">{label}</h4>
           <p className={cn(
-            "text-4xl font-bold tracking-tight font-mono",
+            "text-3xl sm:text-4xl font-bold tracking-tight font-mono",
             variant === 'primary' ? "text-white" : "text-slate-900 dark:text-white"
           )}>{amount}</p>
         </div>
@@ -393,8 +393,8 @@ function PremiumPaymentCard({ name, digits, isPrimary, type }: any) {
           )}
         </div>
         <div>
-          <p className={cn("text-xs font-bold", isPrimary ? "text-white" : "text-slate-900 dark:text-white")}>{name}</p>
-          <p className={cn("text-[10px] font-bold font-mono tracking-tighter", isPrimary ? "text-indigo-200/60" : "text-slate-400")}>{digits}</p>
+          <p className={cn("text-xs font-black", isPrimary ? "text-white" : "text-slate-950 dark:text-white")}>{name}</p>
+          <p className={cn("text-[10px] font-bold font-mono tracking-tighter", isPrimary ? "text-indigo-200/80" : "text-slate-500 dark:text-slate-400")}>{digits}</p>
         </div>
       </div>
       {isPrimary && <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_#34d399]" />}
@@ -406,10 +406,10 @@ function TransactionRow({ type, title, id, date, amount, status }: any) {
   const isIncome = type === 'Ingreso';
 
   return (
-    <div className="group flex items-center justify-between p-6 hover:bg-slate-50/50 dark:hover:bg-white/[0.02] transition-colors cursor-pointer">
-      <div className="flex items-center gap-6">
+    <div className="group flex items-center justify-between p-4 sm:p-6 hover:bg-slate-50/50 dark:hover:bg-white/[0.02] transition-colors cursor-pointer">
+      <div className="flex items-center gap-3 sm:gap-6">
         <div className={cn(
-          "w-12 h-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110",
+          "w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 shrink-0",
           isIncome 
             ? "bg-emerald-500/10 text-emerald-500" 
             : "bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400"
@@ -417,9 +417,9 @@ function TransactionRow({ type, title, id, date, amount, status }: any) {
           {isIncome ? <ArrowDownLeft className="w-6 h-6" /> : <ArrowUpRight className="w-6 h-6" />}
         </div>
         <div>
-          <h4 className="text-sm font-bold text-slate-800 dark:text-white mb-1 group-hover:text-indigo-500 transition-colors">{title}</h4>
-          <div className="flex items-center gap-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-            <span className={isIncome ? "text-emerald-500/70" : ""}>{type}</span>
+          <h4 className="text-xs sm:text-sm font-black text-slate-900 dark:text-white mb-0.5 sm:mb-1 group-hover:text-indigo-500 transition-colors line-clamp-1">{title}</h4>
+          <div className="flex items-center gap-2 sm:gap-4 text-[9px] sm:text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+            <span className={isIncome ? "text-emerald-500 font-extrabold" : ""}>{type}</span>
             <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-white/10" />
             <span>{id}</span>
             <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-white/10" />

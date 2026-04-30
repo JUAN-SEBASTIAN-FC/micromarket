@@ -1,14 +1,14 @@
 import React, { useRef, useEffect } from 'react';
 import { 
   Search, 
-  MoreVertical, 
   Send, 
   Paperclip,
   CheckCheck,
   Image as ImageIcon,
   Briefcase,
   CheckCircle,
-  XCircle
+  XCircle,
+  ArrowLeft
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useSearchParams } from 'react-router-dom';
@@ -19,11 +19,11 @@ import { Lock, Clock } from 'lucide-react';
 
 export default function Messages() {
   const { profile } = useAuth();
-  const isPending = profile?.status === 'pending';
   const [searchParams] = useSearchParams();
   const initialChatId = searchParams.get('chat');
   
   const [chats, setChats] = React.useState<Chat[]>([]);
+  const [loadingChats, setLoadingChats] = React.useState(true);
   const [messages, setMessages] = React.useState<any[]>([]);
   const [input, setInput] = React.useState('');
   const [selectedChatId, setSelectedChatId] = React.useState<string | null>(initialChatId);
@@ -31,14 +31,16 @@ export default function Messages() {
 
   useEffect(() => {
     if (!profile?.uid) return;
+    setLoadingChats(true);
     const unsubscribe = subscribeToUserChats(profile.uid, profile.role, (fetchedChats) => {
       setChats(fetchedChats);
-      if (!selectedChatId && fetchedChats.length > 0) {
+      setLoadingChats(false);
+      if (!selectedChatId && fetchedChats.length > 0 && !initialChatId) {
         setSelectedChatId(fetchedChats[0].id || null);
       }
     });
     return () => unsubscribe();
-  }, [profile?.uid]);
+  }, [profile?.uid, profile?.role, initialChatId]);
 
   useEffect(() => {
     if (!selectedChatId) {
@@ -117,8 +119,15 @@ export default function Messages() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-65px-110px)] overflow-hidden bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 rounded-[2.5rem] shadow-2xl mx-8 mt-4 mb-10">
-      <aside className="w-80 flex flex-col border-r border-slate-200 dark:border-white/5 shrink-0 bg-slate-50/50 dark:bg-slate-950/50">
+    <div className="flex flex-col h-full">
+      <div className="flex flex-1 overflow-hidden bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 rounded-[1.75rem] shadow-xl">
+      <aside className={cn(
+        "flex flex-col border-r border-slate-200 dark:border-white/5 shrink-0 bg-slate-50/50 dark:bg-slate-950/50 transition-all duration-300",
+        // On mobile: full width when no chat selected, hidden when chat selected
+        selectedChatId
+          ? "hidden lg:flex lg:w-80 xl:w-96"
+          : "flex w-full lg:w-80 xl:w-96"
+      )}>
         <div className="p-6 border-b border-slate-100 dark:border-white/5">
           <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Mensajes Recientes</h2>
           <div className="relative">
@@ -131,7 +140,12 @@ export default function Messages() {
           </div>
         </div>
         <div className="flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-white/5">
-          {chats.length === 0 ? (
+          {loadingChats ? (
+            <div className="flex flex-col items-center justify-center p-12 gap-4">
+              <div className="w-8 h-8 border-4 border-indigo-600/20 border-t-indigo-600 rounded-full animate-spin" />
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sincronizando...</p>
+            </div>
+          ) : chats.length === 0 ? (
             <p className="text-slate-400 text-xs font-medium p-6">No tienes conversaciones activas.</p>
           ) : (
             chats.map((chat) => {
@@ -189,9 +203,16 @@ export default function Messages() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none" />
         {selectedChat ? (
           <>
-            <header className="h-20 flex items-center justify-between px-8 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-white/5 shadow-sm relative z-10 shrink-0">
-              <div className="flex items-center gap-4">
-                <img src={headerChatAvatar} alt="" className="w-10 h-10 rounded-full border border-slate-200 dark:border-white/10 shadow-sm object-cover" />
+            <header className="h-16 flex items-center justify-between px-4 sm:px-6 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-white/5 shadow-sm relative z-10 shrink-0">
+              <div className="flex items-center gap-3">
+                {/* Back button — mobile only */}
+                <button
+                  onClick={() => setSelectedChatId(null)}
+                  className="lg:hidden w-8 h-8 flex items-center justify-center rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 text-slate-500 transition-colors"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </button>
+                <img src={headerChatAvatar} alt="" className="w-9 h-9 rounded-full border border-slate-200 dark:border-white/10 shadow-sm object-cover" />
                 <div>
                   <div className="flex items-center gap-2">
                     <h3 className="text-sm font-black text-slate-900 dark:text-white tracking-tight">{headerChatName}</h3>
@@ -259,33 +280,21 @@ export default function Messages() {
             </div>
 
             <div className="p-6 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-t border-slate-200 dark:border-white/5 relative z-10">
-              {isPending && (
-                <div className="absolute inset-0 z-20 bg-white/80 dark:bg-slate-950/80 backdrop-blur-[2px] flex items-center justify-center px-8 rounded-b-[2.5rem]">
-                  <div className="flex items-center gap-3 bg-amber-500/10 border border-amber-500/20 px-6 py-3 rounded-2xl shadow-sm backdrop-blur-md">
-                    <Clock className="w-5 h-5 text-amber-500 animate-pulse" />
-                    <p className="text-[10px] font-black text-amber-600 dark:text-amber-500 uppercase tracking-widest">
-                      Chatear requiere verificación de cuenta
-                    </p>
-                  </div>
-                </div>
-              )}
               <div className="relative">
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 flex gap-3">
-                   <button className="text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors" disabled={isPending}><Paperclip className="w-5 h-5" /></button>
-                   <button className="text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors" disabled={isPending}><ImageIcon className="w-5 h-5" /></button>
+                   <button className="text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors"><Paperclip className="w-5 h-5" /></button>
+                   <button className="text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors"><ImageIcon className="w-5 h-5" /></button>
                 </div>
                 <input 
                   type="text" 
                   value={input}
-                  disabled={isPending || selectedChat.status === 'discarded'}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-                  placeholder={isPending ? "Chat bloqueado temporalmente" : selectedChat.status === 'discarded' ? "Chat descartado" : "Escribe un mensaje..."} 
+                  placeholder="Escribe un mensaje..." 
                   className="w-full pl-24 pr-16 py-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-white/10 focus:bg-white dark:focus:bg-slate-900 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20 outline-none transition-all text-sm font-medium text-slate-900 dark:text-white disabled:opacity-50 placeholder:text-slate-400"
                 />
                 <button 
                   onClick={handleSend}
-                  disabled={isPending || selectedChat.status === 'discarded'}
                   className="absolute right-4 top-1/2 -translate-y-1/2 h-10 w-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-500/20 hover:bg-indigo-500 transition-all active:scale-90 disabled:bg-slate-300 dark:disabled:bg-slate-800 disabled:shadow-none"
                 >
                   <Send className="w-5 h-5 -ml-0.5" />
@@ -302,6 +311,7 @@ export default function Messages() {
           </div>
         )}
       </main>
+      </div>
     </div>
   );
 }

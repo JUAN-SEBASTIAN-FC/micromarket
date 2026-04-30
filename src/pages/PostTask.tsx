@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { 
-  Check, 
-  MapPin, 
+import {
+  Check,
+  MapPin,
   ArrowRight,
   ChevronRight,
   Calendar,
@@ -128,7 +128,7 @@ export default function PostTask() {
         <p className="text-slate-500 dark:text-slate-400 font-medium max-w-md leading-relaxed mb-10">
           Como medida de seguridad, revisamos cada perfil. Pronto podrás publicar tus tareas.
         </p>
-        <button 
+        <button
           onClick={() => navigate('/explore')}
           className="btn-primary"
         >
@@ -150,10 +150,10 @@ export default function PostTask() {
             {id ? "Editar Tarea" : "Publicar Tarea"}
           </h1>
         </div>
-        
+
         <div className="flex items-center gap-4 bg-white/50 dark:bg-slate-900/50 p-2 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm">
           {[1, 2, 3].map((s) => (
-            <div 
+            <div
               key={s}
               className={cn(
                 "h-2 w-12 rounded-full transition-all duration-500",
@@ -168,7 +168,7 @@ export default function PostTask() {
         <div className="lg:col-span-8">
           <AnimatePresence mode="wait">
             {step === 1 && (
-              <motion.div 
+              <motion.div
                 key="step1"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -182,18 +182,18 @@ export default function PostTask() {
                     </div>
                     <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-widest">Elegir Categoría</h3>
                   </div>
-                  
+
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                     {categories.map((cat) => {
                       const Icon = iconMap[cat.icon] || Tag;
                       return (
-                        <CategoryOption 
+                        <CategoryOption
                           key={cat.id}
-                          id={cat.name.toLowerCase()} 
-                          label={cat.name} 
-                          icon={<Icon className="w-6 h-6" />} 
-                          selected={formData.category === cat.name.toLowerCase()} 
-                          onSelect={() => setFormData({...formData, category: cat.name.toLowerCase()})} 
+                          id={cat.name.toLowerCase()}
+                          label={cat.name}
+                          icon={<Icon className="w-6 h-6" />}
+                          selected={formData.category === cat.name.toLowerCase()}
+                          onSelect={() => setFormData({ ...formData, category: cat.name.toLowerCase() })}
                         />
                       );
                     })}
@@ -207,25 +207,25 @@ export default function PostTask() {
                     </div>
                     <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-widest">Detalles Principales</h3>
                   </div>
-                  
+
                   <div className="glass-panel p-8 rounded-[2rem] space-y-8 border-slate-200 dark:border-white/5 shadow-sm">
                     <div className="space-y-3">
                       <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Título de la misión</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         value={formData.title}
-                        onChange={(e) => setFormData({...formData, title: e.target.value})}
+                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                         placeholder="Ej: Rediseño de icono de App"
                         className="w-full h-14 px-6 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-white/5 rounded-2xl text-slate-900 dark:text-white font-bold focus:border-indigo-600 focus:ring-4 focus:ring-indigo-600/10 transition-all outline-none"
                       />
                     </div>
-                    
+
                     <div className="space-y-3">
                       <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Instrucciones detalladas</label>
-                      <textarea 
+                      <textarea
                         rows={5}
                         value={formData.description}
-                        onChange={(e) => setFormData({...formData, description: e.target.value})}
+                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                         placeholder="Describe los entregables y el objetivo final..."
                         className="w-full p-6 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-white/5 rounded-2xl text-slate-900 dark:text-white font-medium focus:border-indigo-600 focus:ring-4 focus:ring-indigo-600/10 transition-all outline-none resize-none leading-relaxed"
                       />
@@ -236,7 +236,7 @@ export default function PostTask() {
             )}
 
             {step === 2 && (
-              <motion.div 
+              <motion.div
                 key="step2"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -251,18 +251,18 @@ export default function PostTask() {
                     <h3 className="text-xs font-black text-indigo-600 dark:text-indigo-500 uppercase tracking-widest">Recompensa (USD)</h3>
                     <div className="relative">
                       <span className="absolute left-0 top-1/2 -translate-y-1/2 text-4xl font-black text-slate-400 dark:text-slate-700">$</span>
-                      <input 
-                        type="number" 
+                      <input
+                        type="number"
                         value={formData.budget}
-                        onChange={(e) => setFormData({...formData, budget: e.target.value})}
+                        onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
                         placeholder="00.00"
                         className="w-full pl-10 bg-transparent text-6xl font-black tracking-tighter text-slate-900 dark:text-white outline-none placeholder:text-slate-300 dark:placeholder:text-slate-800"
                       />
                     </div>
                     <div className="bg-indigo-500/10 rounded-2xl p-5 border border-indigo-500/20">
-                       <p className="text-[11px] font-bold text-indigo-300 leading-relaxed uppercase tracking-tighter">
-                         Tareas con mayor presupuesto atraen mejores talentos en minutos.
-                       </p>
+                      <p className="text-[11px] font-bold text-indigo-300 leading-relaxed uppercase tracking-tighter">
+                        Tareas con mayor presupuesto atraen mejores talentos en minutos.
+                      </p>
                     </div>
                   </section>
 
@@ -270,29 +270,29 @@ export default function PostTask() {
                     <h3 className="text-xs font-black text-indigo-600 dark:text-indigo-500 uppercase tracking-widest">Plazo Límite</h3>
                     <div className="relative">
                       <Calendar className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500" />
-                      <input 
-                        type="date" 
+                      <input
+                        type="date"
                         value={formData.deadline}
-                        onChange={(e) => setFormData({...formData, deadline: e.target.value})}
+                        onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
                         className="w-full h-16 pl-14 pr-6 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-white/5 rounded-2xl text-slate-900 dark:text-white font-bold focus:border-indigo-600 outline-none transition-all uppercase text-sm shadow-sm"
                       />
                     </div>
                     <div className="grid grid-cols-1 gap-3">
-                       {['MAÑANA (Urgente)', '3 DÍAS (Estándar)', '7 DÍAS (Flexible)'].map((opt) => (
-                         <button 
+                      {['MAÑANA (Urgente)', '3 DÍAS (Estándar)', '7 DÍAS (Flexible)'].map((opt) => (
+                        <button
                           key={opt}
                           onClick={() => {
                             const date = new Date();
                             if (opt.includes('MAÑANA')) date.setDate(date.getDate() + 1);
                             else if (opt.includes('3 DÍAS')) date.setDate(date.getDate() + 3);
                             else date.setDate(date.getDate() + 7);
-                            setFormData({...formData, deadline: date.toISOString().split('T')[0]});
+                            setFormData({ ...formData, deadline: date.toISOString().split('T')[0] });
                           }}
                           className="w-full h-12 flex items-center px-6 rounded-xl border border-white/5 hover:bg-white/5 hover:border-indigo-600 transition-all text-[10px] font-black text-slate-400 hover:text-white uppercase tracking-widest"
-                         >
-                           {opt}
-                         </button>
-                       ))}
+                        >
+                          {opt}
+                        </button>
+                      ))}
                     </div>
                   </section>
                 </div>
@@ -300,7 +300,7 @@ export default function PostTask() {
             )}
 
             {step === 3 && (
-              <motion.div 
+              <motion.div
                 key="step3"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -341,7 +341,7 @@ export default function PostTask() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-3xl p-8 border border-slate-200 dark:border-white/10 flex items-start gap-6 shadow-sm">
                   <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-indigo-600/20">
                     <AlertCircle className="w-6 h-6 text-white" />
@@ -359,7 +359,7 @@ export default function PostTask() {
 
           <div className="mt-20 flex items-center justify-between gap-6 border-t border-white/5 pt-12">
             {step > 1 ? (
-              <button 
+              <button
                 onClick={prevStep}
                 className="h-16 px-12 rounded-2xl border border-white/10 text-slate-400 font-bold text-xs hover:bg-white/5 transition-all active:scale-95 flex items-center gap-3"
               >
@@ -368,14 +368,14 @@ export default function PostTask() {
             ) : (
               <div />
             )}
-            
-            <button 
+
+            <button
               onClick={step === 3 ? handleFinalSubmit : nextStep}
               disabled={loading}
               className="h-16 px-16 rounded-2xl bg-indigo-600 text-white font-bold text-sm shadow-2xl shadow-indigo-600/30 hover:bg-indigo-500 hover:-translate-y-1 transition-all flex items-center gap-4 active:scale-95 disabled:opacity-50"
             >
               {loading ? (
-                 <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1 }} className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full" />
+                <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1 }} className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full" />
               ) : (
                 <>
                   {step === 3 ? (id ? 'Confirmar Cambios' : 'Lanzar Tarea') : 'Siguiente Paso'}
@@ -412,8 +412,8 @@ function CategoryOption({ id, label, icon, selected, onSelect }: any) {
     <label onClick={onSelect} className="cursor-pointer group relative block">
       <div className={cn(
         "h-32 rounded-3xl flex flex-col items-center justify-center transition-all duration-500 border-2",
-        selected 
-          ? "bg-indigo-600 border-indigo-500 shadow-2xl shadow-indigo-600/20 scale-105" 
+        selected
+          ? "bg-indigo-600 border-indigo-500 shadow-2xl shadow-indigo-600/20 scale-105"
           : "bg-slate-900/40 border-white/5 hover:border-white/10 hover:bg-slate-900/60"
       )}>
         <div className={cn("mb-4 transition-all duration-500", selected ? "text-white scale-110" : "text-slate-600 group-hover:text-indigo-400")}>
@@ -423,7 +423,7 @@ function CategoryOption({ id, label, icon, selected, onSelect }: any) {
           {label}
         </span>
         {selected && (
-          <motion.div 
+          <motion.div
             layoutId="activeCategory"
             className="absolute -top-2 -right-2 w-8 h-8 bg-white rounded-2xl flex items-center justify-center shadow-xl"
           >
@@ -438,16 +438,16 @@ function CategoryOption({ id, label, icon, selected, onSelect }: any) {
 // Add ShieldCheck icon for use in Step 3
 function ShieldCheck({ className }: { className?: string }) {
   return (
-    <svg 
-      className={className} 
-      xmlns="http://www.w3.org/2000/svg" 
-      width="24" 
-      height="24" 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
-      strokeWidth="2" 
-      strokeLinecap="round" 
+    <svg
+      className={className}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
       strokeLinejoin="round"
     >
       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />

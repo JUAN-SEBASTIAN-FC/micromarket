@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Plus, 
-  Grid2X2, 
-  List, 
-  MoreVertical, 
-  Clock, 
-  FileText, 
+import {
+  Plus,
+  Grid2X2,
+  List,
+  MoreVertical,
+  Clock,
+  FileText,
   Calendar,
   PlayCircle,
   History,
@@ -39,24 +39,38 @@ export default function MyTasks() {
       return;
     }
 
+    let authoredLoaded = false;
+    let assignedLoaded = false;
+
     const unsubAuthored = subscribeToUserTasks(
-      profile.name || user?.displayName || '',
-      (tasks) => setAuthoredTasks(tasks)
+      profile.uid,
+      (tasks) => {
+        setAuthoredTasks(tasks);
+        authoredLoaded = true;
+        if (assignedLoaded) setLoading(false);
+      },
+      () => { authoredLoaded = true; if (assignedLoaded) setLoading(false); }
     );
 
     const unsubAssigned = subscribeToAssignedTasks(
       profile.uid,
       (tasks) => {
         setAssignedTasks(tasks);
-        setLoading(false);
-      }
+        assignedLoaded = true;
+        if (authoredLoaded) setLoading(false);
+      },
+      () => { assignedLoaded = true; if (authoredLoaded) setLoading(false); }
     );
+
+    // Safety timeout: never stay loading forever
+    const timeout = setTimeout(() => setLoading(false), 8000);
 
     return () => {
       unsubAuthored();
       unsubAssigned();
+      clearTimeout(timeout);
     };
-  }, [profile, user]);
+  }, [profile?.uid]);
 
   const currentTasks = activeTab === 'Publicadas' ? authoredTasks : assignedTasks;
 
@@ -79,60 +93,57 @@ export default function MyTasks() {
       <div className="absolute top-0 right-0 w-[50%] h-[40%] bg-indigo-600/5 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[20%] left-[-10%] w-[40%] h-[30%] bg-blue-600/5 rounded-full blur-[100px] pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-6 pt-16 relative z-10">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 mb-12">
+      <div className="max-w-7xl mx-auto page-padding pt-8 md:pt-12 relative z-10">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
           >
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                <Briefcase className="w-5 h-5 text-white" />
+            <div className="flex items-center gap-2.5 mb-1.5">
+              <div className="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center shadow-md shadow-indigo-500/20">
+                <Briefcase className="w-4 h-4 text-white" />
               </div>
-              <span className="text-[10px] font-bold text-indigo-500 uppercase tracking-[0.2em]">Centro de Operaciones</span>
+              <span className="label-eyebrow text-indigo-500">Centro de Operaciones</span>
             </div>
-            <h1 className="text-4xl font-bold text-slate-900 dark:text-white tracking-tight">Gestión de Tareas</h1>
-            <p className="text-slate-500 dark:text-slate-400 mt-2 text-sm">
-              Controla tu flujo de trabajo y monitorea tus misiones activas en tiempo real.
-            </p>
+            <h1 className="page-title">Gestión de Tareas</h1>
           </motion.div>
 
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
           >
-            <Link 
-              to="/post-task" 
-              className="group flex items-center gap-3 px-8 h-14 rounded-2xl bg-indigo-600 text-white font-bold text-xs uppercase tracking-wider hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-500/25 active:scale-95"
+            <Link
+              to="/post-task"
+              className="group flex items-center gap-2.5 px-5 h-10 rounded-xl bg-indigo-600 text-white font-bold text-xs uppercase tracking-wider hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/25 active:scale-95 whitespace-nowrap"
             >
-              <Plus className="w-5 h-5 transition-transform group-hover:rotate-90" />
+              <Plus className="w-4 h-4 transition-transform group-hover:rotate-90" />
               Publicar Misión
             </Link>
           </motion.div>
         </div>
 
-        <div className="grid grid-cols-12 gap-8">
+        <div className="grid grid-cols-12 gap-6">
           {/* Sidebar Navigation */}
-          <aside className="col-span-12 lg:col-span-3 space-y-6">
-            <motion.div 
+          <aside className="col-span-12 lg:col-span-3 space-y-4">
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="glass-panel rounded-[2rem] p-3 border-white/5 shadow-xl"
+              className="glass-panel rounded-[1.25rem] p-3 border-white/5 shadow-lg"
             >
-              <h3 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-3 px-4 pt-4">Navegación</h3>
+              <h3 className="label-eyebrow mb-4 px-4 pt-4">Navegación</h3>
               <div className="space-y-1">
                 {[
                   { id: 'Recibidas', label: 'Mis Asignaciones', icon: <Target className="w-4 h-4" />, count: assignedTasks.length },
                   { id: 'Publicadas', label: 'Tareas Publicadas', icon: <Layers className="w-4 h-4" />, count: authoredTasks.length }
                 ].map((tab) => (
-                  <button 
+                  <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
                     className={cn(
-                      "w-full flex items-center justify-between px-4 py-3.5 rounded-xl font-bold text-xs transition-all group",
-                      activeTab === tab.id 
-                        ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/20" 
-                        : "text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white"
+                      "w-full flex items-center justify-between px-4 py-4 rounded-xl font-black text-[13px] transition-all group",
+                      activeTab === tab.id
+                        ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/20"
+                        : "text-slate-800 dark:text-slate-200 hover:bg-white dark:hover:bg-white/5 hover:text-slate-950 dark:hover:text-white"
                     )}
                   >
                     <div className="flex items-center gap-3">
@@ -142,30 +153,30 @@ export default function MyTasks() {
                       {tab.label}
                     </div>
                     <span className={cn(
-                      "text-[9px] px-2 py-0.5 rounded-lg font-bold border font-mono", 
-                      activeTab === tab.id 
-                        ? "bg-white/20 border-white/20 text-white" 
-                        : "bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-slate-500 border-slate-200 dark:border-white/5"
+                      "text-[9px] px-2 py-0.5 rounded-lg font-bold border font-mono",
+                      activeTab === tab.id
+                        ? "bg-white/20 border-white/20 text-white"
+                        : "bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-white/5"
                     )}>
                       {tab.count.toString().padStart(2, '0')}
                     </span>
                   </button>
                 ))}
               </div>
-              
+
               <div className="h-px bg-slate-100 dark:bg-white/5 mx-4 my-4" />
-              
-              <h3 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-3 px-4">Filtrar por Estado</h3>
+
+              <h3 className="label-eyebrow mb-4 px-4">Filtrar por Estado</h3>
               <div className="space-y-1 pb-4">
                 {['Activas', 'Completadas', 'Eliminadas'].map((filter) => (
-                  <button 
+                  <button
                     key={filter}
                     onClick={() => setStatusFilter(filter)}
                     className={cn(
-                      "w-full text-left px-4 py-3 rounded-xl font-bold text-[11px] transition-all",
-                      statusFilter === filter 
-                        ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xl" 
-                        : "text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white"
+                      "w-full text-left px-4 py-3.5 rounded-xl font-black text-[12px] transition-all",
+                      statusFilter === filter
+                        ? "bg-slate-950 dark:bg-white text-white dark:text-slate-950 shadow-xl"
+                        : "text-slate-800 dark:text-slate-200 hover:bg-white dark:hover:bg-white/5 hover:text-slate-950 dark:hover:text-white"
                     )}
                   >
                     {filter}
@@ -174,17 +185,17 @@ export default function MyTasks() {
               </div>
             </motion.div>
 
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="glass-panel rounded-[2rem] p-8 border-white/5 shadow-xl space-y-8"
+              className="glass-panel rounded-[1.25rem] p-5 border-white/5 shadow-lg space-y-5"
             >
               <div className="flex items-center justify-between">
-                <h3 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Métricas</h3>
+                <h3 className="label-eyebrow">Métricas</h3>
                 <Trophy className="w-4 h-4 text-amber-500" />
               </div>
-              
+
               <div className="space-y-6">
                 <MetricProgress label="Tasa de Éxito" value={94} color="bg-indigo-500" />
                 <MetricProgress label="Cumplimiento" value={88} color="bg-emerald-500" />
@@ -192,21 +203,21 @@ export default function MyTasks() {
 
               <div className="pt-4">
                 <div className="p-5 rounded-2xl bg-indigo-600/5 dark:bg-indigo-500/10 border border-indigo-500/10 relative overflow-hidden group">
-                   <div className="absolute top-0 right-0 p-3 opacity-20 transition-transform group-hover:scale-110">
-                     <Zap className="w-10 h-10 text-indigo-500" />
-                   </div>
-                   <p className="text-[11px] leading-relaxed text-indigo-900/60 dark:text-indigo-300/60 font-medium relative z-10">
-                     <span className="font-bold text-indigo-900 dark:text-indigo-300 block mb-1">Nexus Status</span>
-                     Tu reputación como tasker está en el nivel <span className="text-indigo-600 dark:text-indigo-400 font-bold">Diamante</span>.
-                   </p>
+                  <div className="absolute top-0 right-0 p-3 opacity-20 transition-transform group-hover:scale-110">
+                    <Zap className="w-10 h-10 text-indigo-500" />
+                  </div>
+                  <p className="text-[11px] leading-relaxed text-indigo-900/60 dark:text-indigo-300/60 font-medium relative z-10">
+                    <span className="font-bold text-indigo-900 dark:text-indigo-300 block mb-1">Nexus Status</span>
+                    Tu reputación como tasker está en el nivel <span className="text-indigo-600 dark:text-indigo-400 font-bold">Diamante</span>.
+                  </p>
                 </div>
               </div>
             </motion.div>
           </aside>
 
           {/* Task Grid */}
-          <main className="col-span-12 lg:col-span-9 space-y-8">
-            <div className="flex justify-between items-center bg-white dark:bg-[#0f172a]/40 p-5 rounded-3xl border border-slate-200 dark:border-white/5 shadow-sm">
+          <main className="col-span-12 lg:col-span-9 space-y-5">
+            <div className="flex justify-between items-center bg-white dark:bg-[#0f172a]/40 p-3.5 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm">
               <div className="flex items-center gap-6">
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Visualización:</span>
@@ -221,12 +232,12 @@ export default function MyTasks() {
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Ordenar:</span>
-                 <select className="bg-transparent border-none text-[11px] font-bold text-slate-800 dark:text-white focus:ring-0 cursor-pointer p-0">
-                   <option className="bg-white dark:bg-slate-900">Fecha Límite</option>
-                   <option className="bg-white dark:bg-slate-900">Recompensa Alta</option>
-                   <option className="bg-white dark:bg-slate-900">Estado Crítico</option>
-                 </select>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Ordenar:</span>
+                <select className="bg-transparent border-none text-[11px] font-bold text-slate-800 dark:text-white focus:ring-0 cursor-pointer p-0">
+                  <option className="bg-white dark:bg-slate-900">Fecha Límite</option>
+                  <option className="bg-white dark:bg-slate-900">Recompensa Alta</option>
+                  <option className="bg-white dark:bg-slate-900">Estado Crítico</option>
+                </select>
               </div>
             </div>
 
@@ -236,18 +247,18 @@ export default function MyTasks() {
                   <Loader message="Sincronizando con Nexus..." />
                 </div>
               ) : filteredTasks.length === 0 ? (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="col-span-2 text-center py-32 glass-panel rounded-[3rem] border-white/5"
+                  className="col-span-2 text-center py-20 glass-panel rounded-[1.5rem] border-white/5"
                 >
-                  <History className="w-12 h-12 text-slate-200 dark:text-white/5 mx-auto mb-4" />
-                  <p className="text-sm font-medium text-slate-400">No se encontraron misiones registradas.</p>
+                  <History className="w-12 h-12 text-slate-300 dark:text-white/10 mx-auto mb-4" />
+                  <p className="text-sm font-bold text-slate-500 dark:text-slate-300">No se encontraron misiones registradas.</p>
                 </motion.div>
               ) : (
                 <AnimatePresence mode="popLayout">
                   {filteredTasks.map((task, idx) => (
-                    <PremiumTaskItem 
+                    <PremiumTaskItem
                       key={task.id}
                       index={idx}
                       task={task}
@@ -268,11 +279,11 @@ function MetricProgress({ label, value, color }: { label: string, value: number,
   return (
     <div className="space-y-3">
       <div className="flex justify-between items-end">
-        <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">{label}</span>
-        <span className="text-sm font-bold text-slate-900 dark:text-white font-mono">{value}%</span>
+        <span className="text-[10px] font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider">{label}</span>
+        <span className="text-sm font-black text-slate-950 dark:text-white font-mono">{value}%</span>
       </div>
       <div className="h-1.5 w-full bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden">
-        <motion.div 
+        <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${value}%` }}
           transition={{ duration: 1.5, ease: "easeOut" }}
@@ -285,9 +296,9 @@ function MetricProgress({ label, value, color }: { label: string, value: number,
 
 function PremiumTaskItem({ task, index, activeTab }: { task: Task, index: number, activeTab: string }) {
   const link = activeTab === 'Recibidas' ? `/my-tasks/${task.id}/active` : `/tasks/${task.id}`;
-  
+
   const getStatusInfo = (status: string) => {
-    switch(status.toLowerCase()) {
+    switch (status.toLowerCase()) {
       case 'completed': return { label: 'Completada', color: 'bg-emerald-500/10 text-emerald-500' };
       case 'deleted': return { label: 'Eliminada', color: 'bg-red-500/10 text-red-500' };
       case 'open': return { label: 'Abierta', color: 'bg-blue-500/10 text-blue-500' };
@@ -306,45 +317,48 @@ function PremiumTaskItem({ task, index, activeTab }: { task: Task, index: number
       layout
     >
       <Link to={link} className="block group">
-        <article className="glass-panel rounded-[2.5rem] p-8 border-white/5 h-full flex flex-col hover:border-indigo-500/30 transition-all duration-500 group-hover:translate-y-[-4px] relative overflow-hidden">
+        <article className="glass-panel rounded-[1.5rem] p-5 border-white/5 h-full flex flex-col hover:border-indigo-500/30 transition-all duration-300 group-hover:translate-y-[-3px] relative overflow-hidden">
           {/* Subtle Glow on hover */}
           <div className="absolute -top-10 -right-10 w-32 h-32 bg-indigo-500/0 group-hover:bg-indigo-500/5 blur-3xl transition-colors duration-500 rounded-full" />
-          
-          <div className="flex justify-between items-start mb-6">
-            <span className={cn("px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-[0.1em]", status.color)}>
+
+          <div className="flex justify-between items-start mb-4">
+            <span className={cn("px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-[0.1em]", status.color)}>
               {status.label}
             </span>
             <button className="text-slate-300 dark:text-slate-600 hover:text-slate-900 dark:hover:text-white transition-colors relative z-10">
-              <MoreVertical className="w-5 h-5" />
+              <MoreVertical className="w-4 h-4" />
             </button>
           </div>
 
-          <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-3 tracking-tight leading-tight group-hover:text-indigo-500 transition-colors">
+          <h3 className="text-lg font-black text-slate-950 dark:text-white mb-2 tracking-tight leading-snug group-hover:text-indigo-600 transition-colors">
             {task.title}
           </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mb-8 flex-grow leading-relaxed line-clamp-2">
+          <p className="text-[13px] text-slate-800 dark:text-slate-200 mb-5 flex-grow font-bold leading-relaxed line-clamp-2">
             {task.description}
           </p>
-          
-          <div className="flex items-center gap-5 mb-8 text-slate-400 dark:text-slate-500">
-             <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest">
-               <Calendar className="w-3.5 h-3.5 text-indigo-500" />
-               {task.deadline || "Sin Plazo"}
-             </div>
-             <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest">
-               <History className="w-3.5 h-3.5 text-blue-500" />
-               {task.createdAt?.includes('T') ? 'Reciente' : task.createdAt || 'Registrada'}
-             </div>
+
+          <div className="flex items-center gap-4 mb-4 text-slate-500 dark:text-slate-300">
+            <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest">
+              <Calendar className="w-3 h-3 text-indigo-500" />
+              {task.deadline || "Sin Plazo"}
+            </div>
+            <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest">
+              <History className="w-3 h-3 text-blue-500" />
+              {typeof task.createdAt === 'string' && task.createdAt.includes('T') ? 'Reciente' :
+                (task.createdAt && typeof (task.createdAt as any).toDate === 'function')
+                  ? (task.createdAt as any).toDate().toLocaleDateString()
+                  : 'Registrada'}
+            </div>
           </div>
 
-          <div className="flex items-center justify-between pt-6 border-t border-slate-100 dark:border-white/5 mt-auto relative z-10">
+          <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-white/5 mt-auto relative z-10">
             <div className="flex flex-col">
-              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Rendimiento</span>
-              <div className="text-2xl font-bold text-slate-900 dark:text-white font-mono tracking-tighter">
+              <span className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-0.5">Recompensa</span>
+              <div className="text-xl font-black text-slate-950 dark:text-white font-mono tracking-tighter">
                 ${typeof task.reward === 'number' ? task.reward.toLocaleString() : task.reward}
               </div>
             </div>
-            
+
             <div className="flex items-center gap-2 text-indigo-500 font-bold text-[10px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity translate-x-2 group-hover:translate-x-0">
               Gestionar
               <ArrowRight className="w-4 h-4" />

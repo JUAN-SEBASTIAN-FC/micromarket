@@ -73,16 +73,24 @@ export default function Explore() {
       <div className="absolute bottom-[-10%] left-[-10%] w-[60%] h-[60%] bg-purple-600/10 dark:bg-purple-500/5 rounded-full blur-[120px] pointer-events-none"></div>
 
       {/* Premium Header & Filters */}
-      <div className="pt-12 pb-8 px-6 max-w-6xl mx-auto">
+      <div className="pt-6 sm:pt-10 pb-6 page-padding max-w-6xl mx-auto">
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-10 mb-12">
           <div className="flex-1 w-full lg:w-auto">
             <motion.h1 
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="text-5xl font-black text-slate-950 dark:text-white tracking-tighter mb-4"
+              className="page-title mb-3"
             >
               EXPLORAR
             </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1 }}
+              className="page-subtitle"
+            >
+              Descubre nuevas oportunidades y misiones estratégicas.
+            </motion.p>
             
             <div className="relative max-w-xl w-full mt-6">
               <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
@@ -124,10 +132,10 @@ export default function Explore() {
         {/* Results Counter */}
         <div className="flex items-center justify-between mb-10 border-b border-slate-200 dark:border-white/5 pb-6">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-indigo-500/10 rounded-2xl flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+            <div className="w-10 h-10 bg-indigo-500/10 rounded-2xl flex items-center justify-center text-indigo-700 dark:text-indigo-300">
               <TrendingUp className="w-5 h-5" />
             </div>
-            <span className="text-xs font-black text-slate-950 dark:text-white uppercase tracking-[3px]">
+            <span className="label-eyebrow">
               {filteredTasks.length} OPORTUNIDADES
             </span>
           </div>
@@ -149,20 +157,20 @@ export default function Explore() {
       </div>
 
       {/* Main Grid */}
-      <div className="max-w-6xl mx-auto px-6">
+      <div className="max-w-6xl mx-auto page-padding">
         {loading ? (
           <Loader message="Sincronizando Mercado..." />
         ) : filteredTasks.length === 0 ? (
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center py-40 bg-white dark:bg-slate-900/20 border-2 border-dashed border-slate-200 dark:border-white/5 rounded-[4rem]"
+            className="text-center py-28 bg-white dark:bg-slate-900/20 border-2 border-dashed border-slate-200 dark:border-white/5 rounded-[1.75rem]"
           >
             <div className="w-20 h-20 bg-slate-100 dark:bg-white/5 rounded-full flex items-center justify-center mx-auto mb-8 text-slate-300 dark:text-slate-700">
               <X className="w-10 h-10" />
             </div>
-            <h3 className="text-2xl font-black text-slate-950 dark:text-white tracking-tighter">Sin resultados</h3>
-            <p className="text-slate-500 font-medium max-w-sm mx-auto mt-4 mb-10">Ajusta tus filtros para descubrir nuevas posibilidades estratégicas.</p>
+            <h3 className="stat-value text-3xl mb-4">Sin resultados</h3>
+            <p className="page-subtitle max-w-sm mx-auto mb-10">Ajusta tus filtros para descubrir nuevas misiones o cambia los términos de búsqueda.</p>
               <button
               onClick={() => {
                 setSearchQuery('');

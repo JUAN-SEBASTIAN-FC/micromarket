@@ -1,4 +1,4 @@
-import { collection, addDoc, getDocs, doc, getDoc, updateDoc, query, orderBy, onSnapshot, serverTimestamp, where, deleteDoc, writeBatch, Timestamp, or } from 'firebase/firestore';
+import { collection, addDoc, getDocs, doc, getDoc, updateDoc, setDoc, query, orderBy, onSnapshot, serverTimestamp, where, deleteDoc, writeBatch, Timestamp, or } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { Task, Message } from './mockData';
 
@@ -58,14 +58,14 @@ export const subscribeToAllTasks = (
 };
 
 export const subscribeToUserTasks = (
-  userName: string, 
+  userId: string,
   callback: (tasks: Task[]) => void,
   onError?: (error: Error) => void
 ) => {
-  if (!userName) return () => {};
+  if (!userId) return () => { };
   const q = query(
-    collection(db, "tasks"), 
-    where("author.name", "==", userName)
+    collection(db, "tasks"),
+    where("authorId", "==", userId)
   );
   return onSnapshot(
     q,
@@ -74,14 +74,21 @@ export const subscribeToUserTasks = (
         id: doc.id,
         ...doc.data()
       })) as Task[];
-      
+
       // Client-side sort to avoid index requirement for small scale
       tasks.sort((a, b) => {
-        const timeA = (a.createdAt as any)?.toMillis() || 0;
-        const timeB = (b.createdAt as any)?.toMillis() || 0;
+        const getTime = (dateVal: any) => {
+          if (!dateVal) return 0;
+          if (typeof dateVal.toMillis === 'function') return dateVal.toMillis();
+          if (typeof dateVal === 'string') return new Date(dateVal).getTime();
+          if (dateVal.seconds) return dateVal.seconds * 1000;
+          return 0;
+        };
+        const timeA = getTime(a.createdAt);
+        const timeB = getTime(b.createdAt);
         return timeB - timeA;
       });
-      
+
       callback(tasks);
     },
     (error: any) => {
@@ -92,13 +99,13 @@ export const subscribeToUserTasks = (
 };
 
 export const subscribeToAssignedTasks = (
-  userId: string, 
+  userId: string,
   callback: (tasks: Task[]) => void,
   onError?: (error: Error) => void
 ) => {
-  if (!userId) return () => {};
+  if (!userId) return () => { };
   const q = query(
-    collection(db, "tasks"), 
+    collection(db, "tasks"),
     where("assignedTo", "==", userId)
   );
   return onSnapshot(
@@ -108,13 +115,20 @@ export const subscribeToAssignedTasks = (
         id: doc.id,
         ...doc.data()
       })) as Task[];
-      
+
       tasks.sort((a, b) => {
-        const timeA = (a.createdAt as any)?.toMillis() || 0;
-        const timeB = (b.createdAt as any)?.toMillis() || 0;
+        const getTime = (dateVal: any) => {
+          if (!dateVal) return 0;
+          if (typeof dateVal.toMillis === 'function') return dateVal.toMillis();
+          if (typeof dateVal === 'string') return new Date(dateVal).getTime();
+          if (dateVal.seconds) return dateVal.seconds * 1000;
+          return 0;
+        };
+        const timeA = getTime(a.createdAt);
+        const timeB = getTime(b.createdAt);
         return timeB - timeA;
       });
-      
+
       callback(tasks);
     },
     (error: any) => {
@@ -158,7 +172,7 @@ export const updateTask = async (taskId: string, taskData: Partial<Task>) => {
 export const createChat = async (chatData: Omit<Chat, 'id' | 'status' | 'updatedAt'>) => {
   // Check if chat already exists
   const chatsRef = collection(db, 'chats');
-  
+
   console.log("createChat called with:", {
     taskId: chatData.taskId,
     applicantId: chatData.applicantId,
@@ -170,7 +184,7 @@ export const createChat = async (chatData: Omit<Chat, 'id' | 'status' | 'updated
     throw new Error("taskId and applicantId are required to create/retrieve a chat");
   }
   const q = query(
-    chatsRef, 
+    chatsRef,
     where('applicantId', '==', chatData.applicantId)
   );
   const snap = await getDocs(q);
@@ -178,7 +192,7 @@ export const createChat = async (chatData: Omit<Chat, 'id' | 'status' | 'updated
   if (existing) {
     return existing.id;
   }
-  
+
   const docRef = await addDoc(chatsRef, {
     ...chatData,
     status: 'active',
@@ -203,33 +217,41 @@ export const createChat = async (chatData: Omit<Chat, 'id' | 'status' | 'updated
 };
 
 export const subscribeToUserChats = (userId: string, userRole: string | undefined, callback: (chats: Chat[]) => void) => {
-  if (!userId) return () => {};
-  
+  if (!userId) return () => { };
+
   let q;
   if (userRole === 'admin') {
     // Admins see all chats
     q = query(
-      collection(db, "chats"),
-      orderBy("updatedAt", "desc")
+      collection(db, "chats")
     );
   } else {
     // Normal users see only their chats
     q = query(
-      collection(db, "chats"), 
+      collection(db, "chats"),
       or(
-        where("creatorId", "==", userId), 
+        where("creatorId", "==", userId),
         where("applicantId", "==", userId)
-      ),
-      orderBy("updatedAt", "desc")
+      )
     );
   }
-  
+
   return onSnapshot(q, (snapshot) => {
     const chats = snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     })) as Chat[];
+
+    // Sort in memory to avoid index requirements
+    chats.sort((a, b) => {
+      const timeA = a.updatedAt?.toMillis() || 0;
+      const timeB = b.updatedAt?.toMillis() || 0;
+      return timeB - timeA;
+    });
+
     callback(chats);
+  }, (error) => {
+    console.error("Error in subscribeToUserChats:", error);
   });
 };
 
@@ -247,14 +269,24 @@ export const fetchChatByTaskAndUser = async (taskId: string, userId: string): Pr
 };
 
 export const subscribeToChatMessages = (chatId: string, callback: (messages: Message[]) => void) => {
-  if (!chatId) return () => {};
-  const q = query(collection(db, `chats/${chatId}/messages`), orderBy("createdAt", "asc"));
+  if (!chatId) return () => { };
+  const q = query(collection(db, `chats/${chatId}/messages`));
   return onSnapshot(q, (snapshot) => {
     const messages = snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
     })) as Message[];
+
+    // Sort in memory
+    messages.sort((a, b) => {
+      const timeA = (a as any).createdAt?.toMillis() || 0;
+      const timeB = (b as any).createdAt?.toMillis() || 0;
+      return timeA - timeB;
+    });
+
     callback(messages);
+  }, (error) => {
+    console.error("Error in subscribeToChatMessages:", error);
   });
 };
 
@@ -265,7 +297,7 @@ export const sendChatMessage = async (chatId: string, messageData: Omit<Message,
     timestamp,
     createdAt: serverTimestamp()
   });
-  
+
   // Update last message in chat
   const chatRef = doc(db, 'chats', chatId);
   await updateDoc(chatRef, {
@@ -279,7 +311,7 @@ export const sendChatMessage = async (chatId: string, messageData: Omit<Message,
     if (chatSnap.exists()) {
       const chat = chatSnap.data() as Chat;
       const recipientId = messageData.senderId === chat.creatorId ? chat.applicantId : chat.creatorId;
-      
+
       await createNotification({
         userId: recipientId,
         title: 'Nuevo mensaje',
@@ -373,7 +405,7 @@ export const assignTask = async (taskId: string, assigneeId: string) => {
 export const confirmApplicantAndDiscardOthers = async (taskId: string, confirmedChatId: string, assigneeId: string) => {
   // 1. Assign the task
   await assignTask(taskId, assigneeId);
-  
+
   // 2. Mark this chat as confirmed
   await updateChatStatus(confirmedChatId, 'confirmed');
 
@@ -382,7 +414,7 @@ export const confirmApplicantAndDiscardOthers = async (taskId: string, confirmed
   const snap = await getDocs(q);
   const batch = writeBatch(db);
   const discardPromises: Promise<any>[] = [];
-  
+
   snap.docs.forEach(docSnap => {
     if (docSnap.id !== confirmedChatId) {
       batch.update(doc(db, "chats", docSnap.id), { status: 'discarded' });
@@ -413,7 +445,7 @@ export const createNotification = async (notifData: Omit<AppNotification, 'id' |
 };
 
 export const subscribeToUserNotifications = (userId: string, callback: (notifs: AppNotification[]) => void) => {
-  if (!userId) return () => {};
+  if (!userId) return () => { };
   const q = query(
     collection(db, "notifications"),
     where("userId", "==", userId)
@@ -423,10 +455,17 @@ export const subscribeToUserNotifications = (userId: string, callback: (notifs: 
       id: doc.id,
       ...doc.data()
     })) as AppNotification[];
-    
+
     const sortedNotifs = notifs.sort((a, b) => {
-      const timeA = (a.createdAt as any)?.toMillis() || 0;
-      const timeB = (b.createdAt as any)?.toMillis() || 0;
+      const getTime = (dateVal: any) => {
+        if (!dateVal) return 0;
+        if (typeof dateVal.toMillis === 'function') return dateVal.toMillis();
+        if (typeof dateVal === 'string') return new Date(dateVal).getTime();
+        if (dateVal.seconds) return dateVal.seconds * 1000;
+        return 0;
+      };
+      const timeA = getTime(a.createdAt);
+      const timeB = getTime(b.createdAt);
       return timeB - timeA;
     });
     callback(sortedNotifs);
@@ -456,12 +495,12 @@ export async function getAllUsers() {
 
 export async function updateUserStatus(userId: string, status: 'pending' | 'approved' | 'incomplete') {
   const userRef = doc(db, 'users', userId);
-  await updateDoc(userRef, { status });
+  await setDoc(userRef, { status }, { merge: true });
 
   // Notificar al usuario
   let title = '';
   let message = '';
-  
+
   if (status === 'approved') {
     title = '¡Cuenta Verificada!';
     message = 'Tu identidad ha sido verificada con éxito. Ya puedes postularte a tareas.';
@@ -484,7 +523,7 @@ export async function updateUserStatus(userId: string, status: 'pending' | 'appr
 
 export async function deleteUserCascade(userId: string) {
   const batch = writeBatch(db);
-  
+
   // 1. Find all tasks by this user
   const tasksQuery = query(collection(db, 'tasks'), where('authorId', '==', userId));
   const tasksSnap = await getDocs(tasksQuery);

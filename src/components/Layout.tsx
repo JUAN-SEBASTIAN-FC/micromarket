@@ -93,7 +93,7 @@ const NotificationBell = () => {
               initial={{ opacity: 0, y: 10, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
-              className="absolute right-0 mt-3 w-80 glass-panel rounded-3xl shadow-2xl z-50 overflow-hidden flex flex-col border border-white/10"
+              className="absolute right-0 mt-3 w-84 glass-panel-premium rounded-3xl z-50 overflow-hidden flex flex-col"
             >
               <div className="p-5 border-b border-white/5 flex items-center justify-between bg-white/5">
                 <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">Notificaciones</h3>
@@ -108,7 +108,7 @@ const NotificationBell = () => {
               </div>
               <div className="max-h-[350px] overflow-y-auto custom-scrollbar">
                 {activeNotifs.length === 0 ? (
-                  <div className="p-10 text-center text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-widest opacity-50">
+                  <div className="p-10 text-center text-slate-500 dark:text-slate-300 text-xs font-bold uppercase tracking-widest opacity-50">
                     Sin notificaciones
                   </div>
                 ) : (
@@ -122,7 +122,7 @@ const NotificationBell = () => {
                         <div className="w-2 h-2 rounded-full mt-2 shrink-0 transition-all duration-500 bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)] scale-110" />
                         <div className="flex-1 min-w-0">
                           <p className="text-xs font-black text-slate-900 dark:text-white truncate mb-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{notif.title}</p>
-                          <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed font-medium">{notif.message}</p>
+                          <p className="text-[11px] text-slate-500 dark:text-slate-300 line-clamp-2 leading-relaxed font-medium">{notif.message}</p>
                         </div>
                       </div>
                     ))}
@@ -157,8 +157,8 @@ const NotificationBell = () => {
                     <Bell className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
                   </div>
                   <div>
-                    <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">Historial de Notificaciones</h2>
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">Actividad Reciente</p>
+                    <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter premium-gradient-text">Historial de Actividad</h2>
+                    <p className="label-eyebrow-muted mt-1">Centro de Notificaciones</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
@@ -254,9 +254,9 @@ export const TopNavLayout = ({ children }: { children: React.ReactNode }) => {
             MicroMarket
           </Link>
           <nav className="hidden md:flex items-center gap-8 ml-4">
-            <NavLink to="/explore" className="text-sm font-bold text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Explorar</NavLink>
-            <NavLink to="/my-tasks" className="text-sm font-bold text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Mis Tareas</NavLink>
-            <NavLink to="/admin/metrics" className="text-sm font-bold text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Clasificación</NavLink>
+            <NavLink to="/explore" className="text-sm font-bold text-slate-500 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Explorar</NavLink>
+            <NavLink to="/my-tasks" className="text-sm font-bold text-slate-500 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Mis Tareas</NavLink>
+            <NavLink to="/admin/metrics" className="text-sm font-bold text-slate-500 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Clasificación</NavLink>
           </nav>
         </div>
 
@@ -289,7 +289,7 @@ export const TopNavLayout = ({ children }: { children: React.ReactNode }) => {
       </main>
 
       <footer className="py-12 glass-nav mt-auto border-t-0 border-slate-200/50 dark:border-slate-800/50 relative z-10">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row gap-6 justify-between items-center text-xs font-bold text-slate-500 dark:text-slate-400">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row gap-6 justify-between items-center text-xs font-bold text-slate-500 dark:text-slate-300">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 bg-indigo-600 rounded-lg flex items-center justify-center text-white"><TrendingUp className="w-3 h-3" /></div>
             <span>&copy; 2026 MicroMarket. Ejecución Impecable.</span>
@@ -318,7 +318,7 @@ export const Sidebar = () => {
 
       {/* Logo Section */}
       <div className="p-10 flex items-center gap-4 shrink-0 relative z-10">
-        <div className="w-14 h-14 bg-gradient-to-br from-indigo-600 to-violet-700 rounded-2xl flex items-center justify-center text-white shadow-2xl shadow-indigo-600/30 group cursor-pointer transition-transform hover:scale-105 active:scale-95">
+        <div className="w-14 h-14 premium-gradient rounded-2xl flex items-center justify-center text-white shadow-2xl shadow-indigo-600/30 group cursor-pointer transition-transform hover:scale-105 active:scale-95">
           <TrendingUp className="w-7 h-7 transition-transform group-hover:rotate-12" />
         </div>
         <Link to="/" className="text-slate-900 dark:text-white font-black text-2xl tracking-tighter font-display leading-none">
@@ -328,7 +328,7 @@ export const Sidebar = () => {
 
       <div className="flex-1 px-5 py-2 space-y-10 overflow-y-auto custom-scrollbar relative z-10">
         <section>
-          <h3 className="text-[10px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-[4px] mb-6 px-5 font-display">Operaciones</h3>
+          <h3 className="label-eyebrow-muted mb-6 px-5 font-display">Operaciones</h3>
           <nav className="space-y-2">
             <SidebarLink to="/explore" icon={<Search className="w-5 h-5" />} label="Explorar Tareas" />
             <SidebarLink to="/my-tasks" icon={<ClipboardList className="w-5 h-5" />} label="Mis Tareas" />
@@ -339,7 +339,7 @@ export const Sidebar = () => {
 
         {isAdmin && (
           <section>
-            <h3 className="text-[10px] font-black text-indigo-500/60 dark:text-indigo-400/40 uppercase tracking-[4px] mb-6 px-5 font-display">Terminal Control</h3>
+            <h3 className="label-eyebrow-muted mb-6 px-5 font-display text-indigo-500/60 dark:text-indigo-400/40">Terminal Control</h3>
             <nav className="space-y-2">
               <SidebarLink to="/admin/metrics" icon={<TrendingUp className="w-5 h-5" />} label="Métricas Globales" />
               <SidebarLink to="/admin/users" icon={<User className="w-5 h-5" />} label="Gestión Usuarios" />
@@ -387,55 +387,57 @@ export const Sidebar = () => {
   );
 };
 
-const SidebarLink = ({ to, icon, label }: { to: string, icon: React.ReactNode, label: string }) => (
-  <NavLink
-    to={to}
-    className={({ isActive }) => cn(
-      "flex items-center gap-4 px-5 py-3.5 rounded-[1.25rem] text-sm font-black transition-all group relative overflow-hidden",
-      isActive
-        ? "bg-indigo-600 text-white shadow-xl shadow-indigo-600/30 translate-x-1"
-        : "text-slate-500 dark:text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/5 border border-transparent"
-    )}
-  >
-    <span className={cn(
-      "shrink-0 transition-all duration-300 group-hover:scale-110",
-      "group-[.active]:text-white"
-    )}>{icon}</span>
-    <span className="truncate tracking-tight font-display">{label}</span>
-    {/* Active Glow Indicator */}
-    <NavLink to={to}>
-      {({ isActive }) => isActive && (
+const SidebarLink = ({ to, icon, label }: { to: string, icon: React.ReactNode, label: string }) => {
+  const location = useLocation();
+  const isActive = location.pathname === to || location.pathname.startsWith(to + '/');
+  return (
+    <NavLink
+      to={to}
+      className={cn(
+        "flex items-center gap-4 px-5 py-3.5 rounded-[1.25rem] text-sm font-black transition-all duration-200 group relative overflow-hidden",
+        isActive
+          ? "bg-indigo-600 text-white shadow-xl shadow-indigo-600/30 translate-x-1"
+          : "text-slate-500 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/5 hover:translate-x-0.5"
+      )}
+    >
+      <span className="shrink-0 transition-all duration-200 group-hover:scale-110">{icon}</span>
+      <span className="truncate tracking-tight font-display">{label}</span>
+      {isActive && (
         <motion.div
-          layoutId="sidebar-glow"
-          className="absolute left-0 w-1 h-6 bg-white/50 rounded-full blur-[2px]"
+          layoutId="sidebar-active-bar"
+          className="absolute right-3 w-1.5 h-5 bg-white/40 rounded-full blur-[1px]"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         />
       )}
     </NavLink>
-  </NavLink>
-);
+  );
+};
 
 // BOTTOM NAVIGATION FOR MOBILE
 export const BottomNav = () => {
   return (
-    <div className="lg:hidden fixed bottom-0 left-0 right-0 glass-nav border-t border-slate-200/50 dark:border-slate-800/50 pb-safe z-50">
-      <div className="flex items-center justify-around px-2 h-16">
-        <BottomNavLink to="/explore" icon={<Search className="w-6 h-6" />} label="Explorar" />
-        <BottomNavLink to="/my-tasks" icon={<ClipboardList className="w-6 h-6" />} label="Mis Tareas" />
+    <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50"
+      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+    >
+      <div className="glass-nav border-t border-slate-200/60 dark:border-slate-800/60">
+        <div className="flex items-center justify-around h-[60px] px-1">
+          <BottomNavLink to="/explore" icon={<Search className="w-[22px] h-[22px]" />} label="Explorar" />
+          <BottomNavLink to="/my-tasks" icon={<ClipboardList className="w-[22px] h-[22px]" />} label="Tareas" />
 
-        {/* Floating Action Button for Post Task */}
-        <div className="relative -top-5">
-          <NavLink
-            to="/post-task"
-            className="w-14 h-14 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-full flex items-center justify-center text-white shadow-lg shadow-indigo-600/30 hover:scale-105 active:scale-95 transition-all border-4 border-slate-50 dark:border-[#020617]"
-          >
-            <PlusCircle className="w-7 h-7" />
-          </NavLink>
+          {/* FAB — Post Task */}
+          <div className="flex flex-col items-center -mt-6">
+            <NavLink
+              to="/post-task"
+              className="w-14 h-14 premium-gradient rounded-full flex items-center justify-center text-white shadow-2xl shadow-indigo-600/40 hover:scale-110 active:scale-95 transition-all border-4 border-slate-50 dark:border-[#020617]"
+            >
+              <PlusCircle className="w-7 h-7" />
+            </NavLink>
+          </div>
+
+          <BottomNavLink to="/messages" icon={<MessageSquare className="w-[22px] h-[22px]" />} label="Chat" />
+          <BottomNavLink to="/profile" icon={<User className="w-[22px] h-[22px]" />} label="Perfil" />
         </div>
-
-        <BottomNavLink to="/messages" icon={<MessageSquare className="w-6 h-6" />} label="Mensajes" />
-        <BottomNavLink to="/profile" icon={<User className="w-6 h-6" />} label="Perfil" />
       </div>
     </div>
   );
@@ -448,29 +450,32 @@ const BottomNavLink = ({ to, icon, label }: { to: string, icon: React.ReactNode,
   return (
     <Link
       to={to}
-      className={cn(
-        "flex items-center gap-4 px-5 py-4 rounded-2xl transition-all duration-300 group relative",
-        isActive
-          ? "bg-indigo-600 text-white shadow-xl shadow-indigo-600/20"
-          : "text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white"
-      )}
+      className="flex flex-col items-center justify-center gap-1 w-14 py-1 relative group"
     >
       <div className={cn(
-        "transition-transform duration-300 group-hover:scale-110",
-        isActive ? "text-white" : "group-hover:text-indigo-600 dark:group-hover:text-indigo-400"
+        "w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-200",
+        isActive
+          ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 scale-110"
+          : "text-slate-400 dark:text-slate-500 group-hover:text-slate-700 dark:group-hover:text-slate-300 group-hover:bg-slate-100 dark:group-hover:bg-white/5"
       )}>
         {icon}
       </div>
-      <span className="text-sm font-bold tracking-tight">{label}</span>
+      <span className={cn(
+        "text-[10px] font-bold tracking-tight leading-none transition-colors duration-200",
+        isActive ? "text-indigo-600 dark:text-indigo-400" : "text-slate-400 dark:text-slate-500"
+      )}>
+        {label}
+      </span>
       {isActive && (
         <motion.div
-          layoutId="sidebar-active"
-          className="absolute left-0 w-1 h-6 bg-white rounded-full -translate-x-1"
+          layoutId="bottom-nav-dot"
+          className="absolute -top-0.5 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-indigo-600 rounded-full"
+          transition={{ type: 'spring', stiffness: 400, damping: 30 }}
         />
       )}
     </Link>
   );
-}
+};
 
 export const Header = () => {
   const navigate = useNavigate();
@@ -486,7 +491,7 @@ export const Header = () => {
   };
 
   return (
-    <header className="h-24 lg:h-28 glass-nav px-6 lg:px-12 flex items-center justify-between shrink-0 z-30 transition-all border-b-0 lg:border-b-0 sticky top-0">
+    <header className="h-16 glass-nav px-4 sm:px-6 lg:px-10 flex items-center justify-between shrink-0 z-30 sticky top-0">
       <div className="flex items-center gap-4 lg:hidden">
         <Link to="/" className="w-12 h-12 bg-gradient-to-br from-indigo-600 to-violet-700 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-indigo-600/30">
           <TrendingUp className="w-6 h-6" />
@@ -520,6 +525,7 @@ export const Header = () => {
 
 export const AppLayout = ({ children }: { children: React.ReactNode }) => {
   const { profile } = useAuth();
+  const location = useLocation();
   const isPending = profile?.status === 'pending';
 
   return (
@@ -536,7 +542,7 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
               </div>
               <div>
                 <p className="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-[3px] leading-none mb-1">Protocolo de Verificación</p>
-                <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest opacity-80">
+                <p className="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-widest opacity-80">
                   Tu cuenta está siendo analizada por el equipo de seguridad. Acceso restringido.
                 </p>
               </div>
@@ -547,9 +553,12 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
           </div>
         )}
 
-        {/* pb-24 on mobile to account for BottomNav */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar relative pb-24 lg:pb-12 px-4 lg:px-10">
-          <div className="max-w-7xl mx-auto w-full pt-6">
+        {/* pb-20 on mobile to account for BottomNav height */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar relative pb-20 lg:pb-8 px-4 sm:px-6 lg:px-10">
+          <div className={cn(
+            "mx-auto w-full pt-5 lg:pt-6",
+            location.pathname === '/messages' ? "max-w-none h-[calc(100vh-140px)]" : "max-w-7xl"
+          )}>
             {children}
           </div>
         </div>

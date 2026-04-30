@@ -11,7 +11,7 @@ import {
   sendPasswordResetEmail,
   signOut
 } from 'firebase/auth';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp, onSnapshot } from 'firebase/firestore';
 
 export type UserRole = 'user' | 'admin';
 export type UserStatus = 'incomplete' | 'pending' | 'approved';
@@ -64,21 +64,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     }, 5000);
 
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      try {
-        if (firebaseUser) {
-          setUser(firebaseUser);
-          
-          // Fetch or create user profile in Firestore
-          const userRef = doc(db, 'users', firebaseUser.uid);
-          const docSnap = await getDoc(userRef);
-          
+    let unsubProfile: (() => void) | null = null;
+
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      // Cleanup previous profile listener
+      if (unsubProfile) {
+        unsubProfile();
+        unsubProfile = null;
+      }
+
+      if (firebaseUser) {
+        setUser(firebaseUser);
+        
+        // Subscribe to real-time profile updates
+        const userRef = doc(db, 'users', firebaseUser.uid);
+        unsubProfile = onSnapshot(userRef, (docSnap) => {
           if (docSnap.exists()) {
             const data = docSnap.data();
-            setProfile({ ...data, uid: firebaseUser.uid } as UserProfile);
+            // Merge Firestore data with Auth defaults to ensure no data loss
+            setProfile({ 
+              uid: firebaseUser.uid,
+              email: firebaseUser.email || undefined,
+              name: firebaseUser.displayName || undefined,
+              photoUrl: firebaseUser.photoURL || undefined,
+              ...data 
+            } as UserProfile);
           } else {
-            // New user, but don't create Firestore doc yet to avoid ghost users
-            const virtualProfile: UserProfile = {
+            // Virtual profile for users who haven't completed onboarding
+            setProfile({
               uid: firebaseUser.uid,
               isPlus: false,
               role: 'user',
@@ -86,17 +99,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               email: firebaseUser.email || undefined,
               name: firebaseUser.displayName || undefined,
               photoUrl: firebaseUser.photoURL || undefined,
-            };
-            setProfile(virtualProfile);
+            });
           }
-        } else {
-          setUser(null);
-          setProfile(null);
-        }
-      } catch (error) {
-        console.error("AuthContext: Error in auth state change:", error);
-        // Ensure we don't block the app if Firestore fails
-        if (firebaseUser) {
+          setLoading(false);
+          clearTimeout(safetyTimeout);
+        }, (error) => {
+          console.error("AuthContext: Error in profile listener:", error);
+          // Fallback if listener fails
           setProfile({
             uid: firebaseUser.uid,
             isPlus: false,
@@ -105,8 +114,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             email: firebaseUser.email || undefined,
             name: firebaseUser.displayName || undefined,
           });
-        }
-      } finally {
+          setLoading(false);
+          clearTimeout(safetyTimeout);
+        });
+      } else {
+        setUser(null);
+        setProfile(null);
         setLoading(false);
         clearTimeout(safetyTimeout);
       }
@@ -114,6 +127,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     return () => {
       unsubscribe();
+      if (unsubProfile) unsubProfile();
       clearTimeout(safetyTimeout);
     };
   }, []);

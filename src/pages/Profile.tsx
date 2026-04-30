@@ -37,6 +37,7 @@ export default function Profile() {
     skillInput: ''
   });
   const [isSaving, setIsSaving] = useState(false);
+  const [isValidating, setIsValidating] = useState(false);
 
   const isApproved = profile?.status === 'approved' || profile?.role === 'admin';
 
@@ -93,10 +94,19 @@ export default function Profile() {
   const handleTestValidate = async () => {
     if (user?.uid) {
       try {
+        setIsValidating(true);
+        // Simular un pequeño delay para que se sienta que está procesando (profesionalismo)
+        await new Promise(resolve => setTimeout(resolve, 1500));
         await updateUserStatus(user.uid, 'approved');
-        toast.success('Cuenta validada exitosamente (Modo Prueba)');
+        toast.success('¡Cuenta Validada!', {
+          description: 'Tu identidad ha sido verificada exitosamente. El acceso restringido ha sido levantado.'
+        });
       } catch (error) {
-        toast.error('Error al validar la cuenta');
+        toast.error('Error de Verificación', {
+          description: 'No se pudo validar la cuenta en este momento.'
+        });
+      } finally {
+        setIsValidating(false);
       }
     }
   };
@@ -107,16 +117,16 @@ export default function Profile() {
       <div className="absolute top-0 right-0 w-[60%] h-[40%] bg-indigo-600/5 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute top-[20%] left-[-10%] w-[40%] h-[30%] bg-emerald-600/5 rounded-full blur-[100px] pointer-events-none" />
 
-      <div className="max-w-6xl mx-auto px-6 pt-16 relative z-10">
+      <div className="max-w-6xl mx-auto page-padding pt-6 md:pt-8 relative z-10">
         
         {/* Profile Header Card */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="glass-panel rounded-[3rem] overflow-hidden border-white/5 mb-10 shadow-2xl"
+          className="glass-panel rounded-[1.75rem] overflow-hidden border-white/5 mb-6 shadow-xl"
         >
           {/* Cover Area */}
-          <div className="h-48 relative overflow-hidden">
+          <div className="h-32 sm:h-40 relative overflow-hidden">
             <div className={cn(
               "absolute inset-0 transition-transform duration-[2s] hover:scale-105",
               profile?.isPlus 
@@ -125,103 +135,112 @@ export default function Profile() {
             )} />
             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20" />
             
-            <div className="absolute bottom-6 right-8 flex gap-4">
+          </div>
+
+          {/* Action Overlay: Ensures buttons are always on top and clickable */}
+          <div className="absolute top-0 left-0 right-0 h-32 sm:h-40 pointer-events-none z-50">
+            <div className="absolute bottom-4 right-5 flex gap-3 pointer-events-auto">
               {!isApproved && (
                 <button 
                   onClick={handleTestValidate}
-                  className="px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 bg-amber-500 text-white hover:bg-amber-600 shadow-lg shadow-amber-500/20"
+                  disabled={isValidating}
+                  className={cn(
+                    "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 shadow-lg shadow-amber-500/20 cursor-pointer",
+                    isValidating 
+                      ? "bg-amber-600/50 text-white cursor-wait" 
+                      : "bg-amber-500 text-white hover:bg-amber-600 hover:-translate-y-0.5 active:scale-95"
+                  )}
                 >
-                  <Shield className="w-4 h-4" /> Validar Cuenta (Test)
+                  {isValidating ? (
+                    <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <Shield className="w-3.5 h-3.5" />
+                  )}
+                  {isValidating ? 'Validando...' : 'Validar (Test)'}
                 </button>
               )}
               <button 
                 onClick={handleConfigClick}
                 className={cn(
-                  "px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2",
+                  "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 cursor-pointer",
                   isApproved 
-                    ? "bg-white/10 backdrop-blur-md border border-white/10 text-white hover:bg-white/20" 
+                    ? "bg-white/10 backdrop-blur-md border border-white/10 text-white hover:bg-white/20 hover:-translate-y-0.5" 
                     : "bg-slate-900/50 border border-slate-800 text-slate-500 cursor-not-allowed"
                 )}
               >
-                <Settings className="w-4 h-4" /> Configurar
+                <Settings className="w-3.5 h-3.5" /> Configurar
               </button>
             </div>
           </div>
 
-          <div className="px-10 pb-12 relative">
-            <div className="flex flex-col lg:flex-row items-end gap-8 -mt-16">
+          <div className="px-5 sm:px-8 pb-7 relative z-10">
+            <div className="flex flex-col sm:flex-row items-start sm:items-end gap-5 -mt-10 sm:-mt-14">
               {/* Avatar Box */}
-              <div className="relative group">
-                <div className="w-40 h-40 rounded-[2.5rem] bg-white dark:bg-[#0f172a] p-1.5 shadow-2xl relative z-10 overflow-hidden border-4 border-white dark:border-slate-900">
+              <div className="relative group shrink-0">
+                <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-2xl bg-white dark:bg-[#0f172a] p-1 shadow-2xl relative z-10 overflow-hidden border-2 sm:border-4 border-white dark:border-slate-900">
                   <img 
                     src={profile?.photoUrl || `https://ui-avatars.com/api/?name=${profile?.name || 'Usuario'}&size=256&background=6366f1&color=fff`} 
                     alt="Profile" 
-                    className="w-full h-full rounded-[2rem] object-cover" 
+                    className="w-full h-full rounded-[calc(1rem-2px)] object-cover" 
                   />
                 </div>
                 {profile?.isPlus && (
                   <motion.div 
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="absolute -bottom-3 -right-3 bg-indigo-600 text-white p-2.5 rounded-2xl border-4 border-white dark:border-[#0f172a] shadow-xl z-20"
+                    className="absolute -bottom-2 -right-2 bg-indigo-600 text-white p-2 rounded-xl border-2 border-white dark:border-[#0f172a] shadow-xl z-20"
                   >
-                    <StarIcon className="w-5 h-5 fill-white" />
+                    <StarIcon className="w-4 h-4 fill-white" />
                   </motion.div>
                 )}
               </div>
 
               {/* Identity Details */}
-              <div className="flex-1 pb-2">
-                <div className="flex items-center gap-4 mb-2">
-                  <h1 className="text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tighter">
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-wrap items-center gap-3 mb-1.5">
+                  <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tighter truncate">
                     {profile?.name || 'Operador Nexus'}
                   </h1>
                   {profile?.status === 'approved' && (
-                    <div className="bg-emerald-500/10 text-emerald-500 px-3 py-1 rounded-full border border-emerald-500/20 flex items-center gap-1.5 shadow-sm">
-                      <Shield className="w-3.5 h-3.5" />
+                    <div className="bg-emerald-500/10 text-emerald-500 px-2.5 py-0.5 rounded-full border border-emerald-500/20 flex items-center gap-1 shadow-sm shrink-0">
+                      <Shield className="w-3 h-3" />
                       <span className="text-[9px] font-black uppercase tracking-widest">Verificado</span>
                     </div>
                   )}
                 </div>
-                <div className="flex flex-wrap items-center gap-6">
-                  <div className="flex items-center gap-2 text-slate-500 font-bold text-sm">
-                    <Mail className="w-4 h-4 text-slate-400" />
-                    <span>{user?.email || profile?.email || 'nexus@micromarket.app'}</span>
+                <div className="flex flex-wrap items-center gap-4">
+                  <div className="flex items-center gap-1.5 text-slate-500 font-semibold text-xs">
+                    <Mail className="w-3.5 h-3.5 text-slate-400" />
+                    <span className="truncate max-w-[180px] sm:max-w-none">{user?.email || profile?.email || 'nexus@micromarket.app'}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-slate-500 font-bold text-sm">
-                    <MapPin className="w-4 h-4 text-slate-400" />
-                    <span>Global Network</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-slate-500 font-bold text-sm">
-                    <Calendar className="w-4 h-4 text-slate-400" />
+                  <div className="flex items-center gap-1.5 text-slate-500 font-semibold text-xs">
+                    <Calendar className="w-3.5 h-3.5 text-slate-400" />
                     <span>Miembro Alpha</span>
                   </div>
                 </div>
               </div>
 
-              <div className="flex gap-3 mb-2">
-                <div className="text-right">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Estatus del Rango</p>
-                  <p className="text-xl font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-tighter">
-                    {profile?.isPlus ? 'NEXUS PRESTIGE' : 'ESTÁNDAR V1'}
-                  </p>
-                </div>
+              <div className="shrink-0">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Rango</p>
+                <p className="text-base font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-tighter">
+                  {profile?.isPlus ? 'NEXUS PRESTIGE' : 'ESTÁNDAR V1'}
+                </p>
               </div>
             </div>
           </div>
         </motion.div>
 
         {/* Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
           {/* Left Column: Bio & Skills */}
-          <div className="lg:col-span-4 space-y-8">
+          <div className="lg:col-span-4 space-y-5">
             <motion.div 
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 }}
-              className="glass-panel rounded-[2.5rem] p-10 border-white/5"
+              className="glass-panel rounded-[1.25rem] p-6 border-white/5"
             >
-              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[4px] mb-8">Protocolo de Identidad</h3>
+              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[4px] mb-5">Protocolo de Identidad</h3>
               <div className="space-y-6">
                 <div>
                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Biografía del Especialista</p>
@@ -278,14 +297,14 @@ export default function Profile() {
           </div>
 
           {/* Right Column: Performance & History */}
-          <div className="lg:col-span-8 space-y-8">
+          <div className="lg:col-span-8 space-y-5">
             <motion.div 
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
-              className="glass-panel rounded-[2.5rem] p-10 border-white/5"
+              className="glass-panel rounded-[1.25rem] p-5 border-white/5"
             >
-              <div className="flex items-center justify-between mb-10">
+              <div className="flex items-center justify-between mb-5">
                 <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[4px]">Análisis de Rendimiento</h3>
                 <TrendingUp className="w-5 h-5 text-indigo-500" />
               </div>
@@ -322,16 +341,16 @@ export default function Profile() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="glass-panel rounded-[2.5rem] p-10 border-white/5"
+              className="glass-panel rounded-[1.25rem] p-5 border-white/5"
             >
-              <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center justify-between mb-5">
                 <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[4px]">Historial de Operaciones</h3>
                 <Briefcase className="w-5 h-5 text-slate-400" />
               </div>
 
               <div className="space-y-4">
                 {/* Empty State or Items */}
-                <div className="p-16 text-center border-2 border-dashed border-slate-200 dark:border-white/5 rounded-[2.5rem] bg-slate-50 dark:bg-white/[0.02]">
+                <div className="p-10 text-center border-2 border-dashed border-slate-200 dark:border-white/5 rounded-[1.25rem] bg-slate-50 dark:bg-white/[0.02]">
                   <Zap className="w-10 h-10 text-slate-300 dark:text-slate-800 mx-auto mb-6" />
                   <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest mb-2">Sin actividad reciente</h4>
                   <p className="text-xs text-slate-500 font-medium max-w-xs mx-auto">Tus misiones y despliegues técnicos aparecerán aquí una vez que comiences a operar en la red.</p>
@@ -457,12 +476,12 @@ export default function Profile() {
 
 function MetricCard({ icon, value, label, sublabel }: any) {
   return (
-    <div className="bg-white dark:bg-white/5 p-6 rounded-[2rem] border border-slate-200 dark:border-white/5 hover:border-indigo-500/30 transition-all group shadow-sm">
-      <div className="w-12 h-12 bg-slate-50 dark:bg-white/5 rounded-2xl flex items-center justify-center mb-6 transition-transform group-hover:scale-110">
+    <div className="bg-white dark:bg-white/5 p-4 rounded-[1rem] border border-slate-200 dark:border-white/5 hover:border-indigo-500/30 transition-all group shadow-sm">
+      <div className="w-9 h-9 bg-slate-50 dark:bg-white/5 rounded-xl flex items-center justify-center mb-3 transition-transform group-hover:scale-110">
         {icon}
       </div>
       <div>
-        <p className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter leading-none mb-3 font-mono">{value}</p>
+        <p className="text-2xl font-black text-slate-900 dark:text-white tracking-tighter leading-none mb-1.5 font-mono">{value}</p>
         <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-tight">
           {label}<br/>
           <span className="text-slate-500 dark:text-slate-600">{sublabel}</span>

@@ -19,14 +19,14 @@ export const TaskCard = ({ task, categories = [], variant = 'full' }: TaskCardPr
 
   return (
     <motion.div
-      whileHover={{ y: -8 }}
+      whileHover={{ y: -4 }}
       className="group"
     >
       <Link
         to={`/tasks/${task.id}`}
         className={cn(
-          "block relative bg-white dark:bg-[#0f172a]/60 backdrop-blur-2xl border border-slate-200/50 dark:border-white/5 rounded-[3rem] transition-all duration-500 hover:shadow-[0_30px_60px_-15px_rgba(99,102,241,0.15)] hover:border-indigo-500/30 overflow-hidden",
-          variant === 'compact' ? "p-6" : "p-10"
+          "block relative bg-white dark:bg-[#0f172a]/60 backdrop-blur-2xl border border-slate-200/50 dark:border-white/5 rounded-[1.75rem] transition-all duration-300 hover:shadow-[0_20px_40px_-12px_rgba(99,102,241,0.15)] hover:border-indigo-500/30 overflow-hidden",
+          variant === 'compact' ? "p-5" : "p-6"
         )}
       >
         {/* Advanced Glow Interaction */}
@@ -34,72 +34,72 @@ export const TaskCard = ({ task, categories = [], variant = 'full' }: TaskCardPr
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-[80px] -ml-32 -mb-32 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" style={{ animationDelay: '1s' }}></div>
 
         {/* Top Section: Author & Category */}
-        <div className="flex justify-between items-start mb-8 relative z-10">
-          <div className="flex items-center gap-5">
+        <div className="flex justify-between items-start mb-5 relative z-10">
+          <div className="flex items-center gap-3">
             <div className="relative">
-              <div className="w-14 h-14 rounded-[1.25rem] overflow-hidden border border-slate-100 dark:border-white/5 shadow-2xl group-hover:scale-105 transition-transform duration-500">
+              <div className="w-10 h-10 rounded-xl overflow-hidden border border-slate-100 dark:border-white/5 shadow-md group-hover:scale-105 transition-transform duration-300">
                 <img src={task.author?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${task.author?.name || 'user'}`} alt="" className="w-full h-full object-cover" />
               </div>
               {task.authorId && (
-                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-indigo-600 rounded-full border-4 border-white dark:border-[#0f172a] flex items-center justify-center text-white shadow-lg">
-                  <ShieldCheck className="w-3.5 h-3.5" />
+                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-indigo-600 rounded-full border-2 border-white dark:border-[#0f172a] flex items-center justify-center text-white shadow-md">
+                  <ShieldCheck className="w-2.5 h-2.5" />
                 </div>
               )}
             </div>
             <div>
-              <h4 className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[3px] mb-2">{task.author?.name || 'Verificado'}</h4>
-              <div className="flex items-center gap-2">
-                <span className="text-[9px] font-black text-indigo-600 dark:text-indigo-400 bg-indigo-500/5 px-3 py-1.5 rounded-xl uppercase tracking-widest border border-indigo-500/10 flex items-center gap-2 backdrop-blur-md">
+              <h4 className="text-[12px] font-black text-slate-900 dark:text-white uppercase tracking-[1.5px] mb-1.5">{task.author?.name || 'Verificado'}</h4>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[11px] font-black text-indigo-700 dark:text-indigo-300 bg-indigo-500/10 px-3 py-1.5 rounded-xl uppercase tracking-wide border border-indigo-500/20 flex items-center gap-1.5">
                   <Icon className="w-3.5 h-3.5" /> {task.category || 'Servicio'}
                 </span>
                 {task.urgency === 'Urgente' && (
-                  <span className="text-[9px] font-black text-rose-600 dark:text-rose-400 bg-rose-500/5 px-3 py-1.5 rounded-xl uppercase tracking-widest border border-rose-500/10 flex items-center gap-2">
+                  <span className="text-[11px] font-black text-rose-700 dark:text-rose-400 bg-rose-500/10 px-3 py-1.5 rounded-xl uppercase tracking-wide border border-rose-500/20 flex items-center gap-1.5">
                     <Zap className="w-3.5 h-3.5 fill-current" /> Urgente
                   </span>
                 )}
               </div>
             </div>
           </div>
-          <div className="text-right">
-             <div className="bg-slate-50 dark:bg-white/5 px-4 py-2 rounded-2xl border border-slate-100 dark:border-white/5">
-                <span className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-1">Recompensa</span>
-                <div className="flex items-center gap-1 justify-end">
-                  <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">$</span>
-                  <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">
-                    {Number(task.reward).toLocaleString()}
-                  </span>
-                </div>
-             </div>
+          <div className="text-right shrink-0 ml-2">
+            <div className="bg-slate-50 dark:bg-white/5 px-3 py-2 rounded-xl border border-slate-100 dark:border-white/5">
+              <span className="text-[9px] font-black text-slate-500 dark:text-slate-300 uppercase tracking-widest block mb-0.5">Paga</span>
+              <div className="flex items-baseline gap-0.5 justify-end">
+                <span className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400">$</span>
+                <span className="text-xl font-black text-slate-950 dark:text-white tracking-tight">
+                  {Number(task.reward).toLocaleString()}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Middle Section: Title & Content */}
-        <div className="mb-10 relative z-10">
-          <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight leading-[1.1] group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors line-clamp-2 mb-4">
+        <div className="mb-5 relative z-10">
+          <h3 className="text-xl font-black text-slate-950 dark:text-white tracking-tight leading-snug group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors line-clamp-2 mb-2">
             {task.title}
           </h3>
-          <p className="text-base text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed font-medium">
+          <p className="text-[15px] text-slate-800 dark:text-slate-200 line-clamp-2 leading-relaxed font-semibold">
             {task.description}
           </p>
         </div>
 
         {/* Bottom Section: Footer Actions */}
-        <div className="pt-8 border-t border-slate-100 dark:border-white/5 flex items-center justify-between relative z-10">
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2.5 text-slate-400 dark:text-slate-500">
-              <Calendar className="w-4.5 h-4.5" />
-              <span className="text-[10px] font-black uppercase tracking-widest">{task.deadline || 'Flexible'}</span>
+        <div className="pt-4 border-t border-slate-100 dark:border-white/5 flex items-center justify-between relative z-10">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 text-slate-900 dark:text-white">
+              <Calendar className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+              <span className="text-[11px] font-black uppercase tracking-wider">{task.deadline || 'Flexible'}</span>
             </div>
-            <div className="flex items-center gap-2.5 text-slate-400 dark:text-slate-500">
-              <Clock className="w-4.5 h-4.5" />
-              <span className="text-[10px] font-black uppercase tracking-widest">24h</span>
+            <div className="flex items-center gap-2 text-slate-900 dark:text-white">
+              <Clock className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+              <span className="text-[11px] font-black uppercase tracking-wider">24h</span>
             </div>
           </div>
-          
-          <div className="flex items-center gap-4">
-            <span className="text-[9px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-[2px] opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 transition-all duration-500">Ver Detalles</span>
-            <div className="w-14 h-14 bg-slate-900 dark:bg-white rounded-2xl flex items-center justify-center text-white dark:text-slate-900 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500 group-active:scale-90 shadow-xl group-hover:shadow-indigo-600/30">
-              <ArrowRight className="w-7 h-7" />
+
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-[1.5px] opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all duration-300">Ver</span>
+            <div className="w-9 h-9 bg-slate-900 dark:bg-white rounded-xl flex items-center justify-center text-white dark:text-slate-900 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300 group-active:scale-90 shadow-md group-hover:shadow-indigo-600/30">
+              <ArrowRight className="w-4 h-4" />
             </div>
           </div>
         </div>
