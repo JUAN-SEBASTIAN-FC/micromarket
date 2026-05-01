@@ -144,12 +144,16 @@ const NotificationBell = () => {
 
       <AnimatePresence>
         {isHistoryOpen && (
-          <div className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-950/60 backdrop-blur-md px-4">
+          <div 
+            className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-950/60 backdrop-blur-md px-4"
+            onClick={() => setIsHistoryOpen(false)}
+          >
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               className="w-full max-w-2xl max-h-[85vh] bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden border border-slate-200 dark:border-slate-800"
+              onClick={(e) => e.stopPropagation()}
             >
               <div className="p-6 md:p-8 flex items-center justify-between border-b border-slate-100 dark:border-white/5">
                 <div className="flex items-center gap-4">

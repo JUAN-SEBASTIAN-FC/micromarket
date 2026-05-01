@@ -75,10 +75,10 @@ export const TaskCard = ({ task, categories = [], variant = 'full' }: TaskCardPr
 
         {/* Middle Section: Title & Content */}
         <div className="mb-5 relative z-10">
-          <h3 className="text-xl font-black text-slate-950 dark:text-white tracking-tight leading-snug group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors line-clamp-2 mb-2">
+          <h3 className="text-2xl font-black text-slate-950 dark:text-white tracking-tight leading-snug group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors line-clamp-2 mb-3">
             {task.title}
           </h3>
-          <p className="text-[15px] text-slate-800 dark:text-slate-200 line-clamp-2 leading-relaxed font-semibold">
+          <p className="text-base sm:text-lg text-slate-800 dark:text-slate-200 line-clamp-2 leading-relaxed font-medium">
             {task.description}
           </p>
         </div>

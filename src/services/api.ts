@@ -219,22 +219,13 @@ export const createChat = async (chatData: Omit<Chat, 'id' | 'status' | 'updated
 export const subscribeToUserChats = (userId: string, userRole: string | undefined, callback: (chats: Chat[]) => void) => {
   if (!userId) return () => { };
 
-  let q;
-  if (userRole === 'admin') {
-    // Admins see all chats
-    q = query(
-      collection(db, "chats")
-    );
-  } else {
-    // Normal users see only their chats
-    q = query(
-      collection(db, "chats"),
-      or(
-        where("creatorId", "==", userId),
-        where("applicantId", "==", userId)
-      )
-    );
-  }
+  const q = query(
+    collection(db, "chats"),
+    or(
+      where("creatorId", "==", userId),
+      where("applicantId", "==", userId)
+    )
+  );
 
   return onSnapshot(q, (snapshot) => {
     const chats = snapshot.docs.map(doc => ({

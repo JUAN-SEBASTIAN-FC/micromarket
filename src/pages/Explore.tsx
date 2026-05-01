@@ -51,6 +51,9 @@ export default function Explore() {
   };
 
   const filteredTasks = tasks.filter(task => {
+    // No mostrar las tareas del usuario actual (ni como admin ni como usuario normal)
+    if (user?.uid && task.authorId === user.uid) return false;
+    
     const matchesCategory = selectedCategory === 'all' || task.category?.toLowerCase() === selectedCategory.toLowerCase();
     const matchesPrice = (task.reward || 0) >= priceRange.min && (task.reward || 0) <= priceRange.max;
     const matchesSearch = !searchQuery || removeAccents(task.title || '').toLowerCase().includes(removeAccents(searchQuery).toLowerCase());
@@ -79,20 +82,20 @@ export default function Explore() {
             <motion.h1 
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="page-title mb-3"
+              className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white tracking-tighter mb-4 premium-gradient-text"
             >
-              EXPLORAR
+              EXPLORAR TAREAS
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 }}
-              className="page-subtitle"
+              className="text-lg sm:text-xl text-slate-600 dark:text-slate-300 font-medium leading-relaxed max-w-2xl"
             >
-              Descubre nuevas oportunidades y misiones estratégicas.
+              Descubre nuevas oportunidades y misiones estratégicas. Encuentra la tarea ideal para tus habilidades.
             </motion.p>
             
-            <div className="relative max-w-xl w-full mt-6">
+            <div className="relative max-w-xl w-full mt-8">
               <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
                 <Search className="h-5 w-5 text-slate-400" />
               </div>
