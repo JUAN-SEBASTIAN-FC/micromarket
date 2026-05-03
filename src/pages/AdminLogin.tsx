@@ -53,12 +53,13 @@ export default function AdminLogin() {
         await loginWithEmail(email, password);
       } catch (err: any) {
         console.error(err);
-        if (err.code === 'auth/user-not-found') {
-          setErrorMsg('El administrador no está registrado.');
-        } else if (err.code === 'auth/wrong-password') {
-          setErrorMsg('Contraseña administrativa incorrecta.');
+        // ✅ Mensaje genérico - no revelar si el usuario existe
+        if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+          setErrorMsg('Correo o contraseña administrativos incorrectos.');
+        } else if (err.code === 'auth/too-many-requests') {
+          setErrorMsg('Demasiados intentos. Intenta más tarde.');
         } else {
-          setErrorMsg('Fallo en la autenticación de seguridad.');
+          setErrorMsg('Fallo en la autenticación. Intenta nuevamente.');
         }
         triggerShake();
       } finally {

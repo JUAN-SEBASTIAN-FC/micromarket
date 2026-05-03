@@ -19,6 +19,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { createTask, fetchTaskById, updateTask, subscribeToCategories, Category } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { toast } from 'sonner';
+import { sanitizeText, isValidBudget, isValidDeadline, isValidCategory } from '../lib/validation';
 
 export default function PostTask() {
   const navigate = useNavigate();
@@ -82,17 +83,65 @@ export default function PostTask() {
 
   const handleFinalSubmit = async () => {
     if (isPending) return;
+    
+    // ✅ Validación exhaustiva de seguridad
+    const validationErrors: string[] = [];
+    const allowedCategories = categories.map(c => c.name.toLowerCase());
+    
+    // Validar título
+    if (!formData.title.trim()) {
+      validationErrors.push('Título requerido');
+    } else if (sanitizeText(formData.title, 200).length < 5) {
+      validationErrors.push('Título debe tener al menos 5 caracteres');
+    } else if (sanitizeText(formData.title, 200).length > 200) {
+      validationErrors.push('Título no puede exceder 200 caracteres');
+    }
+    
+    // Validar descripción
+    if (!formData.description.trim()) {
+      validationErrors.push('Descripción requerida');
+    } else if (sanitizeText(formData.description, 5000).length < 20) {
+      validationErrors.push('Descripción debe tener al menos 20 caracteres');
+    } else if (sanitizeText(formData.description, 5000).length > 5000) {
+      validationErrors.push('Descripción no puede exceder 5000 caracteres');
+    }
+    
+    // Validar categoría
+    if (!formData.category || !isValidCategory(formData.category, allowedCategories)) {
+      validationErrors.push('Categoría inválida');
+    }
+    
+    // Validar presupuesto
+    if (!isValidBudget(formData.budget)) {
+      validationErrors.push('Presupuesto debe estar entre $1 y $100,000');
+    }
+    
+    // Validar deadline
+    if (!isValidDeadline(formData.deadline)) {
+      validationErrors.push('Fecha debe ser futura (máximo 2 años)');
+    }
+    
+    // Validar requisitos
+    if (formData.requirements.filter(r => r.trim()).length === 0) {
+      validationErrors.push('Agrega al menos un requisito');
+    }
+    
+    if (validationErrors.length > 0) {
+      toast.error(validationErrors.join('. '));
+      return;
+    }
+
     setLoading(true);
     try {
       const taskData = {
-        title: formData.title,
-        description: formData.description,
+        title: sanitizeText(formData.title, 200),
+        description: sanitizeText(formData.description, 5000),
         category: formData.category,
         reward: Number(formData.budget),
         urgency: 'Estándar' as const,
         status: 'open' as const,
         deadline: formData.deadline,
-        requirements: formData.requirements,
+        requirements: formData.requirements.filter(r => r.trim()).map(r => sanitizeText(r, 300)),
         authorId: user?.uid,
         author: {
           name: profile?.name || user?.displayName || 'Usuario',
@@ -111,7 +160,8 @@ export default function PostTask() {
         navigate('/explore');
       }
     } catch (error) {
-      toast.error("Error al guardar la tarea.");
+      console.error('Error al guardar tarea:', error);
+      toast.error("Error al guardar la tarea. Intenta nuevamente.");
     } finally {
       setLoading(false);
     }

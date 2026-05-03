@@ -31,6 +31,17 @@ export default function Login() {
     setTimeout(() => setShake(false), 500);
   };
 
+  // ✅ Validación mejorada de email
+  const isValidEmail = (email: string): boolean => {
+    // Regex RFC 5322 simplificado
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return false;
+    // Rechazar patrones claramente inválidos
+    if (email.includes('..') || email.startsWith('.') || email.endsWith('.')) return false;
+    if (email.startsWith('@') || email.endsWith('@')) return false;
+    if (email.length > 254) return false; // RFC 5321
+    return true;
+  };
+
   const validateForm = () => {
     const errors: { email?: string; password?: string } = {};
     let isValid = true;
@@ -38,7 +49,7 @@ export default function Login() {
     if (!email) {
       errors.email = 'El correo es obligatorio.';
       isValid = false;
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    } else if (!isValidEmail(email)) {
       errors.email = 'El formato del correo no es válido.';
       isValid = false;
     }
@@ -66,13 +77,9 @@ export default function Login() {
     } catch (err: any) {
       triggerShake();
       
-      // Manejo específico de errores como solicitó el usuario
-      if (err.code === 'auth/user-not-found') {
-        setFieldErrors({ email: 'Este correo no está registrado en nuestra plataforma.' });
-      } else if (err.code === 'auth/wrong-password') {
-        setFieldErrors({ password: 'La contraseña ingresada es incorrecta.' });
-      } else if (err.code === 'auth/invalid-credential') {
-        setFieldErrors({ general: 'Las credenciales proporcionadas no son válidas.' });
+      // ✅ Mensajes genéricos - no revelar si correo existe
+      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+        setFieldErrors({ general: 'Correo o contraseña incorrectos.' });
       } else if (err.code === 'auth/too-many-requests') {
         setFieldErrors({ general: 'Demasiados intentos. Tu acceso ha sido limitado temporalmente por seguridad.' });
       } else {

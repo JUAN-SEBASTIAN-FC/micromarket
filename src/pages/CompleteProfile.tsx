@@ -5,6 +5,7 @@ import { User, Image as ImageIcon, FileText, UploadCloud, ArrowRight, CheckCircl
 import { useAuth, UserProfile } from '../contexts/AuthContext';
 import { uploadFile } from '../services/storage';
 import { toast } from 'sonner';
+import { isValidDNI, isValidPhone, sanitizeText } from '../lib/validation';
 
 export default function CompleteProfile() {
   const { user, profile, completeUserProfile, logout } = useAuth();
@@ -36,17 +37,32 @@ export default function CompleteProfile() {
     }
   }, [profile, navigate]);
 
+  // ✅ Validación profesional de campos
   const validateFields = () => {
     const errors: { [key: string]: string } = {};
-    if (!name.trim()) errors.name = 'El nombre es obligatorio.';
-    else if (name.trim().length < 3) errors.name = 'El nombre debe ser más largo.';
+    
+    // Validar nombre
+    if (!name.trim()) {
+      errors.name = 'El nombre es obligatorio.';
+    } else if (name.trim().length < 3) {
+      errors.name = 'El nombre debe tener al menos 3 caracteres.';
+    } else if (name.trim().length > 100) {
+      errors.name = 'El nombre no puede exceder 100 caracteres.';
+    }
 
+    // Validar DNI y teléfono solo para usuarios normales
     if (profile?.role !== 'admin') {
-      if (!dni.trim()) errors.dni = 'El DNI es obligatorio.';
-      else if (dni.trim().length < 5) errors.dni = 'El DNI parece inválido.';
+      if (!dni.trim()) {
+        errors.dni = 'El DNI es obligatorio.';
+      } else if (!isValidDNI(dni)) {
+        errors.dni = 'DNI debe ser 6-12 dígitos válidos.';
+      }
 
-      if (!phone.trim()) errors.phone = 'El teléfono es obligatorio.';
-      else if (phone.trim().length < 7) errors.phone = 'El teléfono parece inválido.';
+      if (!phone.trim()) {
+        errors.phone = 'El teléfono es obligatorio.';
+      } else if (!isValidPhone(phone)) {
+        errors.phone = 'Teléfono debe ser 7-15 dígitos válidos.';
+      }
     }
 
     setFieldErrors(errors);
@@ -137,13 +153,13 @@ export default function CompleteProfile() {
       }
 
       const updates: Partial<UserProfile> = {
-        name,
+        name: sanitizeText(name, 100),
         photoUrl,
         certificates: uploadedCerts,
-        dni,
-        phone,
-        bio,
-        skills: tags,
+        dni: dni.trim().replace(/\D/g, ''), // ✅ Solo números
+        phone: phone.trim().replace(/\D/g, ''), // ✅ Solo números
+        bio: sanitizeText(bio, 500),
+        skills: tags.map(tag => sanitizeText(tag, 50)),
         documents: uploadedDocs
       };
 

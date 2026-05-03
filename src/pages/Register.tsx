@@ -18,6 +18,15 @@ export default function Register() {
   
   const [loading, setLoading] = useState(false);
 
+  // ✅ Validación mejorada de email
+  const isValidEmail = (email: string): boolean => {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return false;
+    if (email.includes('..') || email.startsWith('.') || email.endsWith('.')) return false;
+    if (email.startsWith('@') || email.endsWith('@')) return false;
+    if (email.length > 254) return false;
+    return true;
+  };
+
   const validateForm = () => {
     const errors: { name?: string; email?: string; password?: string } = {};
     let isValid = true;
@@ -33,10 +42,7 @@ export default function Register() {
     if (!email) {
       errors.email = 'Por favor, ingresa tu correo electrónico.';
       isValid = false;
-    } else if (!email.includes('@')) {
-      errors.email = 'Al correo le falta el símbolo "@".';
-      isValid = false;
-    } else if (!email.includes('.')) {
+    } else if (!isValidEmail(email)) {
       errors.email = 'Ingresa un correo válido (ej. usuario@dominio.com).';
       isValid = false;
     }
@@ -44,8 +50,11 @@ export default function Register() {
     if (!password) {
       errors.password = 'Por favor, ingresa una contraseña.';
       isValid = false;
-    } else if (password.length < 6) {
-      errors.password = 'La contraseña debe tener al menos 6 caracteres.';
+    } else if (password.length < 8) {
+      errors.password = 'La contraseña debe tener al menos 8 caracteres (incluir mayúscula, número).';
+      isValid = false;
+    } else if (!/[A-Z]/.test(password) || !/\d/.test(password)) {
+      errors.password = 'La contraseña debe contener al menos una mayúscula y un número.';
       isValid = false;
     }
 
