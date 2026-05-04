@@ -45,7 +45,7 @@ export default function Home() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "circOut" }}
-            className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-white/50 dark:bg-white/5 backdrop-blur-xl border border-indigo-500/20 text-indigo-700 dark:text-indigo-400 text-[10px] font-black uppercase tracking-[4px] shadow-2xl mb-12"
+            className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-white/50 dark:bg-white/5 backdrop-blur-xl border border-indigo-500/20 text-indigo-700 dark:text-indigo-400 text-xs font-black uppercase tracking-widest shadow-2xl mb-12"
           >
              <span className="relative flex h-2.5 w-2.5">
                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
@@ -58,7 +58,7 @@ export default function Home() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-            className="text-5xl sm:text-7xl md:text-[8.5rem] font-black tracking-[-0.06em] leading-[0.85] max-w-6xl mb-8 sm:mb-12 premium-gradient-text"
+            className="text-5xl sm:text-7xl lg:text-9xl font-black tracking-tighter leading-[0.9] max-w-6xl mb-8 sm:mb-12 premium-gradient-text"
           >
             EJECUCIÓN <br/>
             MAGISTRAL.
@@ -98,18 +98,18 @@ export default function Home() {
              className="mt-24 flex flex-wrap items-center justify-center gap-12"
           >
              <div className="flex flex-col gap-1">
-                <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">5k+</span>
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Expertos</span>
+                <span className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tighter">5k+</span>
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Expertos</span>
              </div>
              <div className="w-px h-10 bg-slate-200 dark:bg-white/10 hidden sm:block"></div>
              <div className="flex flex-col gap-1">
-                <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">12k+</span>
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Entregas</span>
+                <span className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tighter">12k+</span>
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Entregas</span>
              </div>
              <div className="w-px h-10 bg-slate-200 dark:bg-white/10 hidden sm:block"></div>
              <div className="flex flex-col gap-1">
-                <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">99.8%</span>
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Satisfacción</span>
+                <span className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tighter">99.8%</span>
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Satisfacción</span>
              </div>
           </motion.div>
         </div>
@@ -157,7 +157,7 @@ export default function Home() {
               <h2 className="text-3xl sm:text-5xl font-black text-slate-950 dark:text-white tracking-tighter leading-[0.9] mb-3 premium-gradient-text">Oportunidades de Alto Nivel</h2>
               <p className="text-base sm:text-xl text-slate-500 dark:text-slate-300 font-medium leading-relaxed">Únete a los proyectos más innovadores de la red.</p>
             </div>
-            <Link to="/explore" className="group inline-flex items-center gap-4 text-[10px] font-black uppercase tracking-[4px] text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 transition-all">
+            <Link to="/explore" className="group inline-flex items-center gap-4 text-xs font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 transition-all">
               Ver Catálogo Completo <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
             </Link>
           </div>
@@ -165,7 +165,7 @@ export default function Home() {
           {loading ? (
             <div className="flex flex-col items-center justify-center py-32 gap-6">
               <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sincronizando feed...</span>
+              <span className="text-xs font-black text-slate-400 uppercase tracking-widest">Sincronizando feed...</span>
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
@@ -204,10 +204,10 @@ export default function Home() {
            </p>
 
            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 relative z-10">
-              <Link to="/register" className="w-full sm:w-auto px-10 sm:px-20 py-5 sm:py-8 bg-white text-slate-950 rounded-[1.5rem] font-black uppercase tracking-[4px] text-[10px] hover:bg-slate-50 transition-all shadow-2xl active:scale-95 group flex items-center justify-center gap-3">
+              <Link to="/register" className="w-full sm:w-auto px-10 sm:px-16 py-4 sm:py-6 bg-white text-slate-950 rounded-[1.5rem] font-black uppercase tracking-widest text-xs hover:bg-slate-50 transition-all shadow-2xl active:scale-95 group flex items-center justify-center gap-3">
                 Unirse a la Red <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
-              <Link to="/post-task" className="w-full sm:w-auto px-10 sm:px-20 py-5 sm:py-8 bg-white/5 text-white border border-white/10 rounded-[1.5rem] font-black uppercase tracking-[4px] text-[10px] hover:bg-white/10 transition-all backdrop-blur-xl active:scale-95">
+              <Link to="/post-task" className="w-full sm:w-auto px-10 sm:px-16 py-4 sm:py-6 bg-white/5 text-white border border-white/10 rounded-[1.5rem] font-black uppercase tracking-widest text-xs hover:bg-white/10 transition-all backdrop-blur-xl active:scale-95">
                 Publicar Desafío
               </Link>
            </div>

@@ -100,7 +100,7 @@ const NotificationBell = () => {
                 {unreadCount > 0 && (
                   <button
                     onClick={handleMarkAllRead}
-                    className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 uppercase tracking-wider transition-colors"
+                    className="text-xs font-black text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 uppercase tracking-wider transition-colors"
                   >
                     Limpiar Todo
                   </button>
@@ -132,7 +132,7 @@ const NotificationBell = () => {
               <div className="p-4 bg-slate-50/50 dark:bg-white/5 border-t border-white/5">
                 <button
                   onClick={() => { setIsOpen(false); setIsHistoryOpen(true); }}
-                  className="w-full py-2 text-[10px] font-black text-slate-400 hover:text-slate-900 dark:hover:text-white uppercase tracking-[2px] transition-colors"
+                  className="w-full py-2 text-xs font-black text-slate-400 hover:text-slate-900 dark:hover:text-white uppercase tracking-widest transition-colors"
                 >
                   Ver Todo el Historial
                 </button>
@@ -169,7 +169,7 @@ const NotificationBell = () => {
                   {unreadCount > 0 && (
                     <button
                       onClick={(e) => { handleMarkAllRead(e); setIsHistoryOpen(false); }}
-                      className="px-6 py-3 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest transition-all"
+                      className="px-6 py-3 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-widest transition-all"
                     >
                       Marcar Todo Leído
                     </button>
@@ -204,7 +204,7 @@ const NotificationBell = () => {
                         <div className="flex-1">
                           <h4 className="text-sm font-black text-slate-900 dark:text-white mb-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{notif.title}</h4>
                           <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-medium">{notif.message}</p>
-                          <div className="mt-4 flex items-center gap-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                          <div className="mt-4 flex items-center gap-4 text-xs font-bold text-slate-400 uppercase tracking-widest">
                             <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> {(notif.createdAt as any)?.toDate?.()?.toLocaleDateString() || 'Reciente'}</span>
                           </div>
                         </div>
@@ -219,7 +219,7 @@ const NotificationBell = () => {
               <div className="p-6 border-t border-slate-100 dark:border-white/5 bg-white dark:bg-slate-900 flex justify-center shrink-0">
                 <button
                   onClick={() => setIsHistoryOpen(false)}
-                  className="px-8 py-3 rounded-2xl bg-indigo-600 text-white text-[10px] font-black uppercase tracking-[2px] hover:bg-indigo-700 hover:scale-105 active:scale-95 transition-all shadow-lg shadow-indigo-600/20"
+                  className="px-8 py-3 rounded-2xl bg-indigo-600 text-white text-xs font-black uppercase tracking-widest hover:bg-indigo-700 hover:scale-105 active:scale-95 transition-all shadow-lg shadow-indigo-600/20"
                 >
                   Cerrar Historial
                 </button>
@@ -374,7 +374,7 @@ export const Sidebar = () => {
             <span className="text-slate-900 dark:text-white text-sm font-black truncate tracking-tight font-display leading-none mb-1">
               {profile?.name || "Usuario"}
             </span>
-            <span className="text-indigo-600 dark:text-indigo-400 text-[10px] uppercase font-black tracking-widest flex items-center gap-1.5 opacity-80">
+            <span className="text-indigo-600 dark:text-indigo-400 text-[11px] uppercase font-black tracking-widest flex items-center gap-1.5 opacity-80">
               {profile?.role === 'admin' ? 'Master Admin' : profile?.isPlus ? 'Premium' : 'Estándar'}
             </span>
           </div>
@@ -425,22 +425,22 @@ export const BottomNav = () => {
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       <div className="glass-nav border-t border-slate-200/60 dark:border-slate-800/60">
-        <div className="flex items-center justify-around h-[60px] px-1">
-          <BottomNavLink to="/explore" icon={<Search className="w-[22px] h-[22px]" />} label="Explorar" />
-          <BottomNavLink to="/my-tasks" icon={<ClipboardList className="w-[22px] h-[22px]" />} label="Tareas" />
+        <div className="flex items-center justify-around h-[70px] px-2">
+          <BottomNavLink to="/explore" icon={<Search className="w-6 h-6" />} label="Explorar" />
+          <BottomNavLink to="/my-tasks" icon={<ClipboardList className="w-6 h-6" />} label="Tareas" />
 
           {/* FAB — Post Task */}
-          <div className="flex flex-col items-center -mt-6">
+          <div className="flex flex-col items-center -mt-8">
             <NavLink
               to="/post-task"
-              className="w-14 h-14 premium-gradient rounded-full flex items-center justify-center text-white shadow-2xl shadow-indigo-600/40 hover:scale-110 active:scale-95 transition-all border-4 border-slate-50 dark:border-[#020617]"
+              className="w-16 h-16 premium-gradient rounded-full flex items-center justify-center text-white shadow-2xl shadow-indigo-600/40 hover:scale-110 active:scale-95 transition-all border-4 border-slate-50 dark:border-[#020617]"
             >
-              <PlusCircle className="w-7 h-7" />
+              <PlusCircle className="w-8 h-8" />
             </NavLink>
           </div>
 
-          <BottomNavLink to="/messages" icon={<MessageSquare className="w-[22px] h-[22px]" />} label="Chat" />
-          <BottomNavLink to="/profile" icon={<User className="w-[22px] h-[22px]" />} label="Perfil" />
+          <BottomNavLink to="/messages" icon={<MessageSquare className="w-6 h-6" />} label="Chat" />
+          <BottomNavLink to="/profile" icon={<User className="w-6 h-6" />} label="Perfil" />
         </div>
       </div>
     </div>
@@ -454,10 +454,10 @@ const BottomNavLink = ({ to, icon, label }: { to: string, icon: React.ReactNode,
   return (
     <Link
       to={to}
-      className="flex flex-col items-center justify-center gap-1 w-14 py-1 relative group"
+      className="flex flex-col items-center justify-center gap-1.5 w-16 py-2 relative group"
     >
       <div className={cn(
-        "w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-200",
+        "w-11 h-11 flex items-center justify-center rounded-2xl transition-all duration-200",
         isActive
           ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 scale-110"
           : "text-slate-400 dark:text-slate-500 group-hover:text-slate-700 dark:group-hover:text-slate-300 group-hover:bg-slate-100 dark:group-hover:bg-white/5"
@@ -465,7 +465,7 @@ const BottomNavLink = ({ to, icon, label }: { to: string, icon: React.ReactNode,
         {icon}
       </div>
       <span className={cn(
-        "text-[10px] font-bold tracking-tight leading-none transition-colors duration-200",
+        "text-[11px] font-bold tracking-tight leading-none transition-colors duration-200",
         isActive ? "text-indigo-600 dark:text-indigo-400" : "text-slate-400 dark:text-slate-500"
       )}>
         {label}
@@ -516,7 +516,7 @@ export const Header = () => {
           </Link>
           <NavLink
             to="/post-task"
-            className="hidden sm:flex bg-indigo-600 text-white px-10 h-12 items-center justify-center rounded-2xl text-[10px] font-black uppercase tracking-[2px] shadow-2xl shadow-indigo-600/30 hover:shadow-indigo-600/50 hover:-translate-y-0.5 transition-all active:scale-95 gap-3 ml-2 group"
+            className="hidden sm:flex bg-indigo-600 text-white px-10 h-12 items-center justify-center rounded-2xl text-xs font-black uppercase tracking-widest shadow-2xl shadow-indigo-600/30 hover:shadow-indigo-600/50 hover:-translate-y-0.5 transition-all active:scale-95 gap-3 ml-2 group"
           >
             <PlusCircle className="w-4 h-4 transition-transform group-hover:rotate-90" />
             <span className="font-display">Nueva Tarea</span>
@@ -545,13 +545,13 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
                 <Clock className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-[3px] leading-none mb-1">Protocolo de Verificación</p>
+                <p className="text-[11px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest leading-none mb-1">Protocolo de Verificación</p>
                 <p className="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-widest opacity-80">
                   Tu cuenta está siendo analizada por el equipo de seguridad. Acceso restringido.
                 </p>
               </div>
             </div>
-            <Link to="/profile" className="text-[10px] font-black uppercase tracking-[2px] px-6 py-2.5 bg-amber-500 text-white rounded-2xl hover:bg-amber-600 shadow-lg shadow-amber-500/20 transition-all active:scale-95">
+            <Link to="/profile" className="text-xs font-black uppercase tracking-widest px-6 py-2.5 bg-amber-500 text-white rounded-2xl hover:bg-amber-600 shadow-lg shadow-amber-500/20 transition-all active:scale-95">
               Estado de Red
             </Link>
           </div>

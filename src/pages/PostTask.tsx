@@ -121,11 +121,6 @@ export default function PostTask() {
       validationErrors.push('Fecha debe ser futura (máximo 2 años)');
     }
     
-    // Validar requisitos
-    if (formData.requirements.filter(r => r.trim()).length === 0) {
-      validationErrors.push('Agrega al menos un requisito');
-    }
-    
     if (validationErrors.length > 0) {
       toast.error(validationErrors.join('. '));
       return;
