@@ -5,11 +5,21 @@ import { User, Image as ImageIcon, FileText, UploadCloud, ArrowRight, CheckCircl
 import { useAuth, UserProfile } from '../contexts/AuthContext';
 import { uploadFile } from '../services/storage';
 import { toast } from 'sonner';
-import { isValidDNI, isValidPhone, sanitizeText } from '../lib/validation';
+import { isValidDNI, isValidPhone, sanitizeText, validateProfileEnterprise, EnterpriseValidationError } from '../lib/validation';
+import { useValidationEngine } from '../contexts/useValidationEngine';
+import EnterpriseErrorAlert from '../components/EnterpriseErrorAlert';
 
 export default function CompleteProfile() {
   const { user, profile, completeUserProfile, logout } = useAuth();
   const navigate = useNavigate();
+  const {
+    error: enterpriseError,
+    loading: validationLoading,
+    clearError: clearEnterpriseError,
+    setError: setEnterpriseError,
+    validate: validateEnterprise,
+    executeSafe: executeSafeEnterprise
+  } = useValidationEngine();
 
   const [name, setName] = useState(profile?.name || '');
   const [dni, setDni] = useState('');
@@ -71,48 +81,53 @@ export default function CompleteProfile() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateFields()) {
-      toast.error('Por favor, revisa los campos en rojo para continuar.');
-      return;
-    }
-    
-    setLoading(true);
-    setError('');
+    clearEnterpriseError();
 
-    try {
+    // Mapeo de errores para el usuario de Storage
+    const getErrorMessage = (err: string) => {
+      if (err.startsWith('UPLOAD_FAILED')) return 'Error al procesar el archivo. Intenta de nuevo.';
+
+      switch (err) {
+        case 'FILE_TOO_LARGE':
+          return 'Archivo demasiado grande para la base de datos (Máximo: 150KB fotos, 300KB documentos). Usa un compresor de PDF o recorta la foto.';
+        case 'INVALID_TYPE':
+          return 'Formato no permitido. Usa imágenes (JPG, PNG) o documentos (PDF, Word).';
+        case 'TOTAL_PROFILE_TOO_LARGE':
+          return 'El peso total del perfil supera el límite de 900KB. Intenta subir menos certificados/documentos.';
+        default:
+          return `Error técnico: ${err}`;
+      }
+    };
+
+    // Validar usando el motor enterprise
+    const validationData = {
+      name,
+      dni: profile?.role === 'admin' ? '12345678' : dni, // Bypass DNI para admins en la validación común
+      phone: profile?.role === 'admin' ? '+1234567890' : phone, // Bypass Phone para admins
+      bio,
+      skills: tags,
+      photoUrl: photoFile ? 'file-uploading' : (profile?.photoUrl || '')
+    };
+
+    const isValid = validateEnterprise(validateProfileEnterprise, validationData);
+    if (!isValid) return;
+
+    await executeSafeEnterprise(async () => {
       let photoUrl = profile?.photoUrl;
       const uploadedCerts: string[] = [];
       const uploadedDocs: string[] = [];
 
-      // Mapeo de errores para el usuario
-      const getErrorMessage = (err: string) => {
-        if (err.startsWith('UPLOAD_FAILED')) return 'Error al procesar el archivo. Intenta de nuevo.';
-
-        switch (err) {
-          case 'FILE_TOO_LARGE':
-            return 'Archivo demasiado grande para la base de datos (Máximo: 150KB fotos, 300KB documentos). Usa un compresor de PDF o recorta la foto.';
-          case 'INVALID_TYPE':
-            return 'Formato no permitido. Usa imágenes (JPG, PNG) o documentos (PDF, Word).';
-          case 'TOTAL_PROFILE_TOO_LARGE':
-            return 'El peso total del perfil supera el límite. Intenta subir menos certificados/documentos.';
-          default:
-            return `Error técnico: ${err}`;
-        }
-      };
-
       if (photoFile && user) {
         try {
-          // La foto de perfil no necesita mucha resolución (400px es suficiente)
           photoUrl = await uploadFile(`users/${user.uid}/profile_${photoFile.name}`, photoFile, {
             maxWidth: 400,
-            maxSizeKB: 150 // Límite estricto para Base64
+            maxSizeKB: 150
           });
         } catch (e: any) {
-          const msg = `Foto de perfil: ${getErrorMessage(e.message)}`;
-          setError(msg);
-          toast.error(msg);
-          setLoading(false);
-          return;
+          throw new EnterpriseValidationError(
+            'Foto de Perfil',
+            `Error al subir el retrato: ${getErrorMessage(e.message)}`
+          );
         }
       }
 
@@ -120,16 +135,15 @@ export default function CompleteProfile() {
         for (const file of certFiles) {
           try {
             const url = await uploadFile(`users/${user.uid}/certs/${file.name}`, file, {
-              maxSizeKB: 300, // Límite estricto para PDFs en Base64
+              maxSizeKB: 300,
               maxWidth: 800
             });
             uploadedCerts.push(url);
           } catch (e: any) {
-            const msg = `Certificado (${file.name}): ${getErrorMessage(e.message)}`;
-            setError(msg);
-            toast.error(msg);
-            setLoading(false);
-            return;
+            throw new EnterpriseValidationError(
+              'Certificados',
+              `Error al subir el certificado "${file.name}": ${getErrorMessage(e.message)}`
+            );
           }
         }
       }
@@ -143,11 +157,10 @@ export default function CompleteProfile() {
             });
             uploadedDocs.push(url);
           } catch (e: any) {
-            const msg = `Documento ID (${file.name}): ${getErrorMessage(e.message)}`;
-            setError(msg);
-            toast.error(msg);
-            setLoading(false);
-            return;
+            throw new EnterpriseValidationError(
+              'Documentos ID',
+              `Error al subir el documento "${file.name}": ${getErrorMessage(e.message)}`
+            );
           }
         }
       }
@@ -156,33 +169,25 @@ export default function CompleteProfile() {
         name: sanitizeText(name, 100),
         photoUrl,
         certificates: uploadedCerts,
-        dni: dni.trim().replace(/\D/g, ''), // ✅ Solo números
-        phone: phone.trim().replace(/\D/g, ''), // ✅ Solo números
+        dni: dni.trim().replace(/\D/g, ''),
+        phone: phone.trim().replace(/\D/g, ''),
         bio: sanitizeText(bio, 500),
         skills: tags.map(tag => sanitizeText(tag, 50)),
         documents: uploadedDocs
       };
 
-      // Verificación de seguridad: El documento de Firestore no puede exceder 1MB
-      // Reducimos el umbral a 900KB para tener margen con los demás campos
       const totalSizeEstimate = JSON.stringify(updates).length;
       if (totalSizeEstimate > 900000) {
-        throw new Error('TOTAL_PROFILE_TOO_LARGE');
+        throw new EnterpriseValidationError(
+          'Tamaño de Perfil',
+          'El peso combinado de tu retrato y certificados supera el límite de 900KB. Reducí el peso de los documentos.'
+        );
       }
 
       await completeUserProfile(updates);
       toast.success('¡Perfil guardado con éxito!');
       navigate(profile?.role === 'admin' ? '/admin/metrics' : '/explore');
-    } catch (err: any) {
-      console.error(err);
-      const msg = err.message === 'TOTAL_PROFILE_TOO_LARGE' 
-        ? 'El perfil es demasiado pesado en conjunto. Intenta subir menos archivos o documentos más pequeños.'
-        : 'Error al guardar el perfil. Por favor intenta de nuevo.';
-      setError(msg);
-      toast.error(msg);
-    } finally {
-      setLoading(false);
-    }
+    }, 'Completar Perfil');
   };
 
   return (
@@ -217,22 +222,9 @@ export default function CompleteProfile() {
           </div>
         </div>
 
+        <EnterpriseErrorAlert error={enterpriseError} onClose={clearEnterpriseError} />
+
         <form onSubmit={handleSubmit} className="space-y-8">
-          <AnimatePresence>
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, y: -10, height: 0 }}
-                animate={{ opacity: 1, y: 0, height: 'auto' }}
-                exit={{ opacity: 0, y: -10, height: 0 }}
-                className="overflow-hidden"
-              >
-                <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-400 mb-2">
-                  <XCircle className="w-6 h-6 shrink-0" />
-                  <p className="text-sm font-medium">{error}</p>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
 
           {/* Foto de Perfil */}
           <div className="flex flex-col items-center gap-4 p-8 bg-white/5 rounded-[2rem] border border-white/5">

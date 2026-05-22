@@ -19,13 +19,24 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { createTask, fetchTaskById, updateTask, subscribeToCategories, Category } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { toast } from 'sonner';
-import { sanitizeText, isValidBudget, isValidDeadline, isValidCategory } from '../lib/validation';
+import { sanitizeText, isValidBudget, isValidDeadline, isValidCategory, validatePostTaskEnterprise } from '../lib/validation';
+import { useValidationEngine } from '../contexts/useValidationEngine';
+import EnterpriseErrorAlert from '../components/EnterpriseErrorAlert';
 
 export default function PostTask() {
   const navigate = useNavigate();
   const { id } = useParams();
   const [step, setStep] = React.useState(1);
   const [loading, setLoading] = useState(false);
+  const {
+    error: enterpriseError,
+    loading: validationLoading,
+    clearError: clearEnterpriseError,
+    setError: setEnterpriseError,
+    validate: validateEnterprise,
+    executeSafe: executeSafeEnterprise
+  } = useValidationEngine();
+
   const [categories, setCategories] = useState<Category[]>([]);
   const [formData, setFormData] = React.useState({
     category: '',
@@ -66,17 +77,99 @@ export default function PostTask() {
   }, [id]);
 
   const nextStep = () => {
-    if (step === 1 && (!formData.title.trim() || !formData.description.trim())) {
-      toast.error("Ingresa un título y descripción.");
-      return;
+    clearEnterpriseError();
+    if (step === 1) {
+      if (!formData.title.trim()) {
+        setEnterpriseError({
+          status: 'fail',
+          source: 'Título de la misión',
+          message: 'Falta el título de la misión. Por favor, definí un título descriptivo para la tarea.',
+          actionable: true
+        });
+        return;
+      }
+      if (formData.title.trim().length < 5) {
+        setEnterpriseError({
+          status: 'fail',
+          source: 'Título de la misión',
+          message: `El título ingresado ("${formData.title}") es demasiado corto. Debe tener al menos 5 caracteres para ser comprensible.`,
+          actionable: true
+        });
+        return;
+      }
+      if (!formData.description.trim()) {
+        setEnterpriseError({
+          status: 'fail',
+          source: 'Instrucciones detalladas',
+          message: 'Faltan las instrucciones de la misión. Es necesario especificar los requerimientos técnicos para los operadores.',
+          actionable: true
+        });
+        return;
+      }
+      if (formData.description.trim().length < 20) {
+        setEnterpriseError({
+          status: 'fail',
+          source: 'Instrucciones detalladas',
+          message: `La descripción provista es insuficiente (longitud real: ${formData.description.trim().length} caracteres). Escribí al menos 20 caracteres explicando el trabajo.`,
+          actionable: true
+        });
+        return;
+      }
     }
-    if (step === 2 && (!formData.budget || Number(formData.budget) <= 0 || !formData.deadline)) {
-      toast.error("Define presupuesto y fecha.");
-      return;
+    if (step === 2) {
+      if (!formData.budget) {
+        setEnterpriseError({
+          status: 'fail',
+          source: 'Recompensa (USD)',
+          message: 'Falta el monto de la recompensa. Debes definir un presupuesto en USD para el depósito en Escrow.',
+          actionable: true
+        });
+        return;
+      }
+      if (!isValidBudget(formData.budget)) {
+        const budgetNum = parseFloat(formData.budget);
+        if (isNaN(budgetNum) || budgetNum <= 0) {
+          setEnterpriseError({
+            status: 'fail',
+            source: 'Recompensa (USD)',
+            message: `El presupuesto ingresado ("${formData.budget}") es inválido. Debe ser un número mayor a 0.`,
+            actionable: true
+          });
+        } else if (budgetNum > 100000) {
+          setEnterpriseError({
+            status: 'fail',
+            source: 'Recompensa (USD)',
+            message: `El presupuesto de $${budgetNum.toLocaleString()} excede el límite máximo de depósito por misión ($100,000 USD).`,
+            actionable: true
+          });
+        }
+        return;
+      }
+      if (!formData.deadline) {
+        setEnterpriseError({
+          status: 'fail',
+          source: 'Plazo Límite',
+          message: 'Falta definir la fecha de plazo límite. Los operadores necesitan saber el tiempo máximo de entrega.',
+          actionable: true
+        });
+        return;
+      }
+      if (!isValidDeadline(formData.deadline)) {
+        setEnterpriseError({
+          status: 'fail',
+          source: 'Plazo Límite',
+          message: 'La fecha límite debe ser futura y no mayor a 2 años de horizonte.',
+          actionable: true
+        });
+        return;
+      }
     }
     setStep(s => Math.min(s + 1, 3));
   };
-  const prevStep = () => setStep(s => Math.max(s - 1, 1));
+  const prevStep = () => {
+    clearEnterpriseError();
+    setStep(s => Math.max(s - 1, 1));
+  };
 
   const { user, profile } = useAuth();
   const isPending = profile?.status === 'pending';
@@ -84,67 +177,31 @@ export default function PostTask() {
   const handleFinalSubmit = async () => {
     if (isPending) return;
     
-    // ✅ Validación exhaustiva de seguridad
-    const validationErrors: string[] = [];
+    clearEnterpriseError();
     const allowedCategories = categories.map(c => c.name.toLowerCase());
     
-    // Validar título
-    if (!formData.title.trim()) {
-      validationErrors.push('Título requerido');
-    } else if (sanitizeText(formData.title, 200).length < 5) {
-      validationErrors.push('Título debe tener al menos 5 caracteres');
-    } else if (sanitizeText(formData.title, 200).length > 200) {
-      validationErrors.push('Título no puede exceder 200 caracteres');
-    }
-    
-    // Validar descripción
-    if (!formData.description.trim()) {
-      validationErrors.push('Descripción requerida');
-    } else if (sanitizeText(formData.description, 5000).length < 20) {
-      validationErrors.push('Descripción debe tener al menos 20 caracteres');
-    } else if (sanitizeText(formData.description, 5000).length > 5000) {
-      validationErrors.push('Descripción no puede exceder 5000 caracteres');
-    }
-    
-    // Validar categoría
-    if (!formData.category || !isValidCategory(formData.category, allowedCategories)) {
-      validationErrors.push('Categoría inválida');
-    }
-    
-    // Validar presupuesto
-    if (!isValidBudget(formData.budget)) {
-      validationErrors.push('Presupuesto debe estar entre $1 y $100,000');
-    }
-    
-    // Validar deadline
-    if (!isValidDeadline(formData.deadline)) {
-      validationErrors.push('Fecha debe ser futura (máximo 2 años)');
-    }
-    
-    if (validationErrors.length > 0) {
-      toast.error(validationErrors.join('. '));
-      return;
-    }
+    // Validar usando el motor enterprise
+    const isValid = validateEnterprise(validatePostTaskEnterprise, formData, allowedCategories);
+    if (!isValid) return;
 
-    setLoading(true);
-    try {
-      const taskData = {
-        title: sanitizeText(formData.title, 200),
-        description: sanitizeText(formData.description, 5000),
-        category: formData.category,
-        reward: Number(formData.budget),
-        urgency: 'Estándar' as const,
-        status: 'open' as const,
-        deadline: formData.deadline,
-        requirements: formData.requirements.filter(r => r.trim()).map(r => sanitizeText(r, 300)),
-        authorId: user?.uid,
-        author: {
-          name: profile?.name || user?.displayName || 'Usuario',
-          avatar: profile?.photoUrl || user?.photoURL || 'https://ui-avatars.com/api/?name=User',
-          rating: 5.0
-        }
-      };
+    const taskData = {
+      title: sanitizeText(formData.title, 200),
+      description: sanitizeText(formData.description, 5000),
+      category: formData.category,
+      reward: Number(formData.budget),
+      urgency: 'Estándar' as const,
+      status: 'open' as const,
+      deadline: formData.deadline,
+      requirements: formData.requirements.filter(r => r.trim()).map(r => sanitizeText(r, 300)),
+      authorId: user?.uid,
+      author: {
+        name: profile?.name || user?.displayName || 'Usuario',
+        avatar: profile?.photoUrl || user?.photoURL || 'https://ui-avatars.com/api/?name=User',
+        rating: 5.0
+      }
+    };
 
+    await executeSafeEnterprise(async () => {
       if (id) {
         await updateTask(id, taskData);
         toast.success("Tarea actualizada con éxito.");
@@ -154,12 +211,7 @@ export default function PostTask() {
         toast.success("¡Tarea publicada con éxito!");
         navigate('/explore');
       }
-    } catch (error) {
-      console.error('Error al guardar tarea:', error);
-      toast.error("Error al guardar la tarea. Intenta nuevamente.");
-    } finally {
-      setLoading(false);
-    }
+    }, 'Publicación de Tarea');
   };
 
   if (isPending) {
@@ -208,6 +260,7 @@ export default function PostTask() {
           ))}
         </div>
       </div>
+      <EnterpriseErrorAlert error={enterpriseError} onClose={clearEnterpriseError} />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
         <div className="lg:col-span-8">
