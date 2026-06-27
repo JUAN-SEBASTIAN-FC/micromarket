@@ -32,10 +32,10 @@
 
 - **Frontend:** React 19 + Vite + TypeScript.
 - **Estilos:** Tailwind CSS (Vanilla CSS & Glassmorphism).
-- **Backend/Base de Datos:** Firebase Firestore (Real-time DB).
+- **Backend/Base de Datos:** Firebase Auth + Firestore (Real-time DB).
+- **Pagos:** Stripe (vía Cloud Function `stripeWebhook`).
 - **Animaciones:** Framer Motion (Motion).
 - **Iconografía:** Lucide React.
-- **IA/Procesamiento:** Google Gemini API integration.
 
 ## 🚀 Instalación Local
 
@@ -57,11 +57,21 @@ Sigue estos pasos para desplegar el núcleo de MicroMarket en tu entorno local:
    ```
 
 3. **Configuración del Entorno:**
-   Crea un archivo `.env.local` en la raíz y añade tus credenciales:
+   Copiá `.env.example` a `.env.local` y rellená tus credenciales de Firebase
+   (Firebase Console → Project Settings → SDK setup, o
+   `npx firebase-tools apps:sdkconfig WEB <APP_ID>`):
    ```env
-   VITE_FIREBASE_API_KEY=tu_api_key
-   VITE_GEMINI_API_KEY=tu_api_key_gemini
+   VITE_FIREBASE_API_KEY=...
+   VITE_FIREBASE_AUTH_DOMAIN=...
+   VITE_FIREBASE_PROJECT_ID=...
+   VITE_FIREBASE_STORAGE_BUCKET=...
+   VITE_FIREBASE_MESSAGING_SENDER_ID=...
+   VITE_FIREBASE_APP_ID=...
+   VITE_ADMIN_MASTER_KEY=...
    ```
+
+   > ⚠️ Tras editar `.env.local` hay que **reconstruir** (`npm run build`):
+   > Vite incrusta estas variables en el bundle en tiempo de build.
 
 4. **Ejecutar en modo Desarrollo:**
    ```bash

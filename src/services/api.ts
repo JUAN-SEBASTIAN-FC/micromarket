@@ -460,6 +460,12 @@ export const subscribeToUserNotifications = (userId: string, callback: (notifs: 
       return timeB - timeA;
     });
     callback(sortedNotifs);
+  }, (error) => {
+    // Sin este handler, un permission-denied transitorio (p.ej. justo al
+    // cerrar sesión, cuando el token deja de ser válido) se propaga como
+    // "Uncaught (in promise) FirebaseError" en la consola.
+    console.error("Error in subscribeToUserNotifications:", error);
+    callback([]);
   });
 };
 
@@ -540,16 +546,25 @@ const INITIAL_CATEGORIES = [
   { name: 'Otros', icon: 'MoreHorizontal' }
 ];
 
+// Siembra las categorías base. Solo un admin tiene permiso para crearlas
+// (ver firestore.rules). Para usuarios anónimos/normales esta función falla
+// silenciosamente y no rompe el arranque de la app.
 export const ensureInitialCategories = async () => {
-  const categoriesSnapshot = await getDocs(collection(db, 'categories'));
-  if (categoriesSnapshot.empty) {
-    console.log('🌱 Inicializando categorías base...');
-    for (const cat of INITIAL_CATEGORIES) {
-      await addDoc(collection(db, 'categories'), {
-        ...cat,
-        createdAt: serverTimestamp()
-      });
+  try {
+    const categoriesSnapshot = await getDocs(collection(db, 'categories'));
+    if (categoriesSnapshot.empty) {
+      console.log('🌱 Inicializando categorías base...');
+      for (const cat of INITIAL_CATEGORIES) {
+        await addDoc(collection(db, 'categories'), {
+          ...cat,
+          createdAt: serverTimestamp()
+        });
+      }
     }
+  } catch (err) {
+    // Sin sesión o sin permisos de admin: ignorar. Las categorías ya existen
+    // en producción y un admin puede gestionarlas desde el panel.
+    console.debug('ensureInitialCategories omitido (sin permisos):', err);
   }
 };
 
@@ -562,6 +577,10 @@ export const subscribeToCategories = (onUpdate: (categories: Category[]) => void
         ...doc.data()
       })) as Category[];
       onUpdate(categories);
+    },
+    (error) => {
+      console.error("Error in subscribeToCategories:", error);
+      onUpdate([]);
     }
   );
 };

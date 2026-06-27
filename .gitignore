@@ -1,8 +1,27 @@
+# Dependencias
 node_modules/
+functions/node_modules/
+
+# Builds
 build/
 dist/
 coverage/
-.DS_Store
-*.log
-.env
+functions/lib/
 
+# Variables de entorno (NUNCA subir secretos)
+.env
+.env.*
+!.env.example
+
+# Firebase (cache local de despliegue)
+.firebase/
+*.log
+firebase-debug.log
+firestore-debug.log
+
+# Sistema / Editor
+.DS_Store
+Thumbs.db
+
+# Temporales del proyecto
+scratch/

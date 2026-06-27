@@ -1,7 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
-import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -12,11 +11,16 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
+// Validación temprana: si faltan variables de entorno, fallar con un
+// mensaje claro en consola en vez de errores crípticos de Firebase.
+if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
+  console.error(
+    "⚠️ Faltan variables de entorno de Firebase (VITE_FIREBASE_*). " +
+    "Verificá tu archivo .env.local y reconstruí con 'npm run build'."
+  );
+}
+
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 export const db = getFirestore(app);
-export const storage = getStorage(app);
-
-// Reducir el tiempo de reintento para que no se quede cargando infinitamente si hay error de CORS
-storage.maxUploadRetryTime = 10000; // 10 segundos

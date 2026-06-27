@@ -1,9 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { auth, db, googleProvider } from '../lib/firebase';
-import { 
-  onAuthStateChanged, 
-  User, 
-  signInAnonymously,
+import {
+  onAuthStateChanged,
+  User,
   signInWithPopup,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -36,13 +35,10 @@ interface AuthContextType {
   user: User | null;
   profile: UserProfile | null;
   loading: boolean;
-  loginAsAnonymous: () => Promise<void>;
   updatePlusStatus: (status: boolean) => Promise<void>;
   completeUserProfile: (data: Partial<UserProfile>) => Promise<void>;
   loginWithGoogle: () => Promise<any>;
   registerWithEmail: (email: string, pass: string, name?: string) => Promise<any>;
-  registerAdminWithEmail: (email: string, pass: string, name: string, secretKey: string) => Promise<any>;
-  registerAdminWithGoogle: (secretKey: string) => Promise<any>;
   loginWithEmail: (email: string, pass: string) => Promise<any>;
   resetPassword: (email: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -132,15 +128,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const loginAsAnonymous = async () => {
-    try {
-      await signInAnonymously(auth);
-    } catch (error) {
-      console.error("Error signing in anonymously", error);
-      throw error;
-    }
-  };
-
   const loginWithGoogle = async () => {
     try {
       return await signInWithPopup(auth, googleProvider);
@@ -178,65 +165,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return userCredential;
     } catch (error) {
       console.error("Error registering with email", error);
-      throw error;
-    }
-  };
-
-  const registerAdminWithEmail = async (email: string, pass: string, name: string, secretKey: string) => {
-    if (secretKey !== import.meta.env.VITE_ADMIN_MASTER_KEY) {
-      throw new Error("Clave maestra inválida.");
-    }
-    
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-      
-      const { updateProfile } = await import('firebase/auth');
-      await updateProfile(userCredential.user, { displayName: name });
-
-      const userRef = doc(db, 'users', userCredential.user.uid);
-      const newProfile: UserProfile = {
-        uid: userCredential.user.uid,
-        email: email,
-        name: name,
-        status: 'incomplete',
-        role: 'admin',
-        isPlus: false
-      };
-      
-      await setDoc(userRef, newProfile, { merge: true });
-      setProfile(newProfile);
-      
-      return userCredential;
-    } catch (error) {
-      console.error("Error registering admin", error);
-      throw error;
-    }
-  };
-
-  const registerAdminWithGoogle = async (secretKey: string) => {
-    if (secretKey !== import.meta.env.VITE_ADMIN_MASTER_KEY) {
-      throw new Error("Clave maestra inválida.");
-    }
-    
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      
-      const userRef = doc(db, 'users', result.user.uid);
-      const newProfile: UserProfile = {
-        uid: result.user.uid,
-        email: result.user.email || '',
-        name: result.user.displayName || '',
-        status: 'incomplete',
-        role: 'admin',
-        isPlus: false
-      };
-      
-      await setDoc(userRef, newProfile, { merge: true });
-      setProfile(newProfile);
-      
-      return result;
-    } catch (error) {
-      console.error("Error registering admin with Google", error);
       throw error;
     }
   };
@@ -315,9 +243,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ 
-      user, profile, loading, loginAsAnonymous, updatePlusStatus, completeUserProfile,
-      loginWithGoogle, registerWithEmail, registerAdminWithEmail, registerAdminWithGoogle, loginWithEmail, resetPassword, logout 
+    <AuthContext.Provider value={{
+      user, profile, loading, updatePlusStatus, completeUserProfile,
+      loginWithGoogle, registerWithEmail, loginWithEmail, resetPassword, logout
     }}>
       {children}
     </AuthContext.Provider>
