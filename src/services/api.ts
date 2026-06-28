@@ -242,7 +242,10 @@ export const subscribeToUserChats = (userId: string, userRole: string | undefine
 
     callback(chats);
   }, (error) => {
+    // Degradar a lista vacía evita "Uncaught (in promise) FirebaseError"
+    // ante un permission-denied transitorio (p.ej. al cerrar sesión).
     console.error("Error in subscribeToUserChats:", error);
+    callback([]);
   });
 };
 
@@ -278,6 +281,7 @@ export const subscribeToChatMessages = (chatId: string, callback: (messages: Mes
     callback(messages);
   }, (error) => {
     console.error("Error in subscribeToChatMessages:", error);
+    callback([]);
   });
 };
 
@@ -547,9 +551,11 @@ const INITIAL_CATEGORIES = [
 ];
 
 // Siembra las categorías base. Solo un admin tiene permiso para crearlas
-// (ver firestore.rules). Para usuarios anónimos/normales esta función falla
-// silenciosamente y no rompe el arranque de la app.
-export const ensureInitialCategories = async () => {
+// (ver firestore.rules), por eso se invoca únicamente cuando el usuario es
+// admin. Para el resto no se intenta nada, evitando ruido de permission-denied
+// en cada arranque de la app.
+export const ensureInitialCategories = async (isAdmin: boolean = false) => {
+  if (!isAdmin) return;
   try {
     const categoriesSnapshot = await getDocs(collection(db, 'categories'));
     if (categoriesSnapshot.empty) {
@@ -562,9 +568,9 @@ export const ensureInitialCategories = async () => {
       }
     }
   } catch (err) {
-    // Sin sesión o sin permisos de admin: ignorar. Las categorías ya existen
-    // en producción y un admin puede gestionarlas desde el panel.
-    console.debug('ensureInitialCategories omitido (sin permisos):', err);
+    // Las categorías ya existen en producción; un admin puede gestionarlas
+    // desde el panel. No romper el arranque si algo falla.
+    console.debug('ensureInitialCategories omitido:', err);
   }
 };
 

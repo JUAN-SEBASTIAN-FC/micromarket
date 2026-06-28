@@ -13,9 +13,9 @@ import {
 import { motion } from 'motion/react';
 import { useSearchParams } from 'react-router-dom';
 import { cn } from '../lib/utils';
-import { subscribeToUserChats, subscribeToChatMessages, sendChatMessage, updateChatStatus, assignTask, createNotification, Chat, confirmApplicantAndDiscardOthers } from '../services/api';
+import { subscribeToUserChats, subscribeToChatMessages, sendChatMessage, updateChatStatus, createNotification, Chat, confirmApplicantAndDiscardOthers } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
-import { Lock, Clock } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function Messages() {
   const { profile } = useAuth();
@@ -55,39 +55,53 @@ export default function Messages() {
 
   const handleSend = async () => {
     if (!input.trim() || !selectedChatId || !profile) return;
+    const text = input;
+    setInput('');
     try {
       await sendChatMessage(selectedChatId, {
         sender: profile.name || "Usuario",
         senderId: profile.uid,
         avatar: profile.photoUrl || `https://ui-avatars.com/api/?name=${profile.name || 'Usuario'}`,
-        text: input
+        text
       });
-      
-      setInput('');
     } catch (error) {
       console.error("Error sending message", error);
+      setInput(text); // Restaurar el texto para no perder el mensaje
+      toast.error('No se pudo enviar el mensaje. Verificá tu conexión e intentá de nuevo.');
     }
   };
 
   const handleConfirmTask = async (chat: Chat) => {
     if (!chat.id) return;
     if (window.confirm('¿Confirmar a este usuario y asignar la tarea? Los demás chats se descartarán.')) {
-      await confirmApplicantAndDiscardOthers(chat.taskId, chat.id, chat.applicantId);
+      try {
+        await confirmApplicantAndDiscardOthers(chat.taskId, chat.id, chat.applicantId);
+        toast.success('Usuario confirmado y tarea asignada.');
+      } catch (error) {
+        console.error("Error confirming applicant", error);
+        toast.error('No se pudo confirmar al usuario. Intentá de nuevo.');
+      }
     }
   };
 
   const handleDiscardChat = async (chat: Chat) => {
     if (!chat.id) return;
     if (window.confirm('¿Descartar este chat?')) {
-      await updateChatStatus(chat.id, 'discarded');
-      await createNotification({
-        userId: chat.applicantId,
-        title: 'Postulación Descartada',
-        message: `Tu postulación para la tarea ${chat.taskTitle} no fue seleccionada.`,
-        type: 'task_discarded',
-        read: false,
-        link: `/messages?chat=${chat.id}`
-      });
+      try {
+        await updateChatStatus(chat.id, 'discarded');
+        await createNotification({
+          userId: chat.applicantId,
+          title: 'Postulación Descartada',
+          message: `Tu postulación para la tarea ${chat.taskTitle} no fue seleccionada.`,
+          type: 'task_discarded',
+          read: false,
+          link: `/messages?chat=${chat.id}`
+        });
+        toast.success('Chat descartado.');
+      } catch (error) {
+        console.error("Error discarding chat", error);
+        toast.error('No se pudo descartar el chat. Intentá de nuevo.');
+      }
     }
   };
 

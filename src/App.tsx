@@ -52,9 +52,15 @@ function ProtectedRoute({ children, requireComplete = true, requireAdmin = false
 }
 
 export default function App() {
+  const { profile } = useAuth();
+
+  // Sembrar categorías base solo si hay un admin autenticado (las reglas de
+  // Firestore solo permiten crearlas a admins). Para el resto no se intenta.
   React.useEffect(() => {
-    ensureInitialCategories();
-  }, []);
+    if (profile?.role === 'admin') {
+      ensureInitialCategories(true);
+    }
+  }, [profile?.role]);
 
   return (
     <ErrorBoundary>

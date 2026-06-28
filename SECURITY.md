@@ -48,11 +48,11 @@ Archivo: src/lib/validation.ts
    - Sanitización de inputs (remueve $, {, })
    - Validación estricta de tipos
 
-✅ Rate Limiting
+✅ Rate Limiting (Cloud Functions)
    - Stripe webhook: 100 req/min
-   - IA Generation: 10 req/hora
    - API genérica: 1000 req/hora
    - Login: 5 intentos/15 min
+   - Registro: 3 registros/hora por IP
 
 Archivo: functions/src/rateLimiter.ts
 
@@ -71,7 +71,8 @@ Archivo: functions/src/rateLimiter.ts
    - Control basado en roles (user, admin)
    - Estados de usuario (incomplete, pending, approved)
    - Firestore Security Rules validan cada lectura/escritura
-   - Admin panel protegido con clave maestra en backend
+   - El 'role' no es auto-asignable: un usuario nunca puede promoverse a admin
+   - Los admins se crean por promoción manual (role:'admin' en la Consola)
 
 ✅ TOKENS Y SESIONES
    - Firebase ID Token (JWT) para autenticación
@@ -85,18 +86,15 @@ Archivo: src/contexts/AuthContext.tsx
 // ============================================================================
 
 ✅ SECRETOS BACKEND (PROTEGIDO)
-   - STRIPE_SECRET_KEY: Cloud Function
-   - STRIPE_WEBHOOK_SECRET: Cloud Function
-   - GEMINI_API_KEY: Cloud Function
-   - ADMIN_MASTER_KEY: Cloud Function (NO en cliente)
-   - DATABASE_ENCRYPTION_KEY: Cloud Function
+   - STRIPE_SECRET_KEY: Cloud Function (secret manager)
+   - STRIPE_WEBHOOK_SECRET: Cloud Function (secret manager)
 
 ❌ SECRETOS EN CLIENTE (REMOVIDOS)
-   - NO más VITE_GEMINI_API_KEY en bundle
-   - NO más VITE_ADMIN_MASTER_KEY en bundle
-   - Todas las claves críticas se invocan via API segura
+   - NO se incrustan claves secretas en el bundle de Vite
+   - Las únicas variables VITE_* son la config pública de Firebase
+   - Las claves críticas (Stripe) viven solo en la Cloud Function
 
-Archivo: functions/.env.local (nunca comitear)
+Archivo: secrets vía `firebase functions:secrets:set` (nunca comitear)
 
 // ============================================================================
 // 5. FIRESTORE SECURITY RULES

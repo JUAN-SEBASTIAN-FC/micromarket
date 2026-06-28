@@ -142,26 +142,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
       // Mandar verificación pero no bloquear el flujo
       sendEmailVerification(userCredential.user).catch(console.error);
-      
+
       const { updateProfile } = await import('firebase/auth');
       if (name) {
         await updateProfile(userCredential.user, { displayName: name });
       }
 
-      // Crear el documento en Firestore con el estado inicial correcto
-      const userRef = doc(db, 'users', userCredential.user.uid);
-      const newProfile: UserProfile = {
-        uid: userCredential.user.uid,
-        email: email,
-        name: name || '',
-        status: 'incomplete',
-        role: 'user',
-        isPlus: false
-      };
-      
-      await setDoc(userRef, newProfile, { merge: true });
-      setProfile(newProfile); // Actualizar estado local inmediatamente
-      
+      // IMPORTANTE: NO se crea aquí el documento de Firestore. El doc se crea
+      // una sola vez en completeUserProfile (regla 'create'). Crearlo aquí y
+      // volver a escribirlo en el onboarding provocaba una race condition con
+      // el listener onSnapshot (leía el doc antes de que propagara) que hacía
+      // rebotar al usuario de vuelta al formulario de registro.
+      // El perfil "virtual" con status 'incomplete' lo provee onAuthStateChanged.
       return userCredential;
     } catch (error) {
       console.error("Error registering with email", error);
@@ -208,19 +200,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       throw new Error("No hay usuario autenticado.");
     }
     const userRef = doc(db, 'users', user.uid);
-    // Determine status: always pending for new completions unless already approved, or if the user is an admin
-    const finalStatus: UserStatus = (profile?.role === 'admin' || profile?.status === 'approved') ? 'approved' : 'pending';
-    
+
+    // El rol nunca lo decide el cliente: se conserva el actual ('user' por
+    // defecto). Se reenvía SIEMPRE de forma explícita para que las reglas de
+    // Firestore puedan comprobar que no cambió (request.resource.data.role).
+    const currentRole: UserRole = profile?.role === 'admin' ? 'admin' : 'user';
+
+    // Estado final: los admin y quienes ya estaban aprobados quedan 'approved';
+    // el resto pasa a 'pending' (a la espera de verificación).
+    const finalStatus: UserStatus =
+      (currentRole === 'admin' || profile?.status === 'approved') ? 'approved' : 'pending';
+
     const updateData = {
       ...data,
       uid: user.uid,
+      role: currentRole,
       status: finalStatus,
       updatedAt: serverTimestamp()
     };
-    
+
+    // El doc puede no existir todavía (primer onboarding) o ya existir (edición
+    // de perfil / admin promovido). setDoc con merge cubre ambos casos: dispara
+    // la regla 'create' la primera vez y 'update' las siguientes.
     await setDoc(userRef, updateData, { merge: true });
-    
-    // Also update Firebase Auth profile for consistency
+
+    // Sincronizar el perfil de Firebase Auth (no bloqueante: si falla por
+    // longitud de URL u otro motivo, el registro en Firestore ya quedó hecho).
     if (data.photoUrl || data.name) {
       try {
         const { updateProfile } = await import('firebase/auth');
@@ -229,13 +234,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           photoURL: data.photoUrl || user.photoURL
         });
       } catch (authError: any) {
-        // Silently fail auth profile update if it's a URL length issue or similar
-        // This ensures the main registration (Firestore) isn't blocked
-        console.warn("AuthContext: Could not update Firebase Auth profile:", authError.message);
+        console.warn("AuthContext: No se pudo actualizar el perfil de Firebase Auth:", authError.message);
       }
     }
 
-    // Update local profile state
+    // Actualizar el estado local de inmediato (el onSnapshot lo confirmará).
     setProfile(prev => {
       if (prev) return { ...prev, ...updateData as any };
       return updateData as any;

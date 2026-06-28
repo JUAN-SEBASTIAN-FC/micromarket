@@ -51,6 +51,8 @@ export default function AdminLogin() {
         setErrorMsg('Correo o contraseña administrativos incorrectos.');
       } else if (err.code === 'auth/too-many-requests') {
         setErrorMsg('Demasiados intentos. Intenta más tarde.');
+      } else if (err.code === 'auth/network-request-failed') {
+        setErrorMsg('Sin conexión. Verificá tu internet e intentá de nuevo.');
       } else {
         setErrorMsg('Fallo en la autenticación. Intenta nuevamente.');
       }

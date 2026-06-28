@@ -15,15 +15,22 @@ service cloud.firestore {
       // Solo el usuario y admins pueden leer perfiles (datos sensibles)
       allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
 
-      // Crear el propio perfil: NO puede nacer como admin ni auto-aprobarse.
+      // Crear el propio perfil: SIEMPRE nace como 'user'. Un admin se crea por
+      // promoción manual (poner role:'admin' en la Consola de Firebase). Se
+      // permite que nazca con cualquiera de los estados del onboarding.
       allow create: if request.auth != null && request.auth.uid == userId &&
                        request.resource.data.role == 'user' &&
-                       request.resource.data.status in ['incomplete', 'pending'];
+                       request.resource.data.status in ['incomplete', 'pending', 'approved'];
 
       // Actualizar el propio perfil: el usuario puede editar sus datos y su
-      // estado de verificación (incluida la auto-validación de prueba), PERO
-      // NUNCA puede escalar privilegios cambiando su 'role'. Eso es lo único
-      // que sigue reservado a un admin: la diferencia entre 'user' y 'admin'.
+      // estado de verificación (incluida la auto-validación de prueba y el
+      // guardado del perfil de admin que queda 'approved'), PERO NUNCA puede
+      // escalar privilegios cambiando su 'role'. Eso es lo único reservado a
+      // un admin: la diferencia entre 'user' y 'admin'.
+      //
+      // El cliente reenvía 'role' explícito en cada escritura (ver
+      // completeUserProfile), por lo que request.resource.data.role siempre
+      // existe y debe coincidir con el valor actual del documento.
       allow update: if request.auth != null && (
         isAdmin() ||
         (

@@ -5,7 +5,7 @@ import {
   Camera, Book, Heart, Zap, Cpu, Globe, MessageSquare, ShoppingBag, Wrench, Home 
 } from 'lucide-react';
 import { subscribeToCategories, createCategory, deleteCategory, Category } from '../services/api';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 
 export const iconMap: Record<string, any> = {
   Terminal,

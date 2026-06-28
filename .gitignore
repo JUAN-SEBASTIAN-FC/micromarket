@@ -7,17 +7,25 @@ build/
 dist/
 coverage/
 functions/lib/
+*.tsbuildinfo
 
 # Variables de entorno (NUNCA subir secretos)
 .env
 .env.*
 !.env.example
+*.local
 
 # Firebase (cache local de despliegue)
 .firebase/
 *.log
 firebase-debug.log
 firestore-debug.log
+
+# Editor: se versiona solo la config útil de .vscode, el resto se ignora
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
 
 # Sistema / Editor
 .DS_Store

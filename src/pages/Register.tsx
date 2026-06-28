@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { Mail, Lock, LogIn, Chrome, ArrowRight, UserPlus, XCircle, User as UserIcon } from 'lucide-react';
+import { Mail, Lock, Chrome, ArrowRight, UserPlus, XCircle, User as UserIcon } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { toast } from 'sonner';
 
@@ -70,17 +70,37 @@ export default function Register() {
     setLoading(true);
     try {
       await registerWithEmail(email, password, name.trim());
-      // Profile will be created in /complete-profile to avoid ghost users
+      // El documento de Firestore se crea recién en /complete-profile (evita
+      // usuarios fantasma y la race condition que devolvía al formulario).
+      // Tras crear el usuario, onAuthStateChanged deja un perfil 'incomplete'
+      // y esta navegación lleva directo al onboarding sin rebotes.
       navigate('/complete-profile');
     } catch (err: any) {
       console.error(err);
-      if (err.code === 'auth/email-already-in-use') {
-        toast.error('Este correo ya está registrado. Redirigiendo al inicio de sesión...');
-        setTimeout(() => navigate('/login', { 
-          state: { message: 'Ya tienes una cuenta registrada. Por favor, inicia sesión.' } 
-        }), 2000);
-      } else {
-        toast.error('Hubo un error al crear tu cuenta. Verifica tu conexión e intenta de nuevo.');
+      switch (err.code) {
+        case 'auth/email-already-in-use':
+          toast.error('Este correo ya está registrado. Te llevamos al inicio de sesión...');
+          setTimeout(() => navigate('/login', {
+            state: { message: 'Ya tienes una cuenta registrada. Por favor, inicia sesión.' }
+          }), 2000);
+          break;
+        case 'auth/invalid-email':
+          toast.error('El correo electrónico no tiene un formato válido.');
+          break;
+        case 'auth/weak-password':
+          toast.error('La contraseña es demasiado débil. Usá al menos 8 caracteres con mayúscula y número.');
+          break;
+        case 'auth/network-request-failed':
+          toast.error('Sin conexión. Verificá tu internet e intentá de nuevo.');
+          break;
+        case 'auth/too-many-requests':
+          toast.error('Demasiados intentos. Esperá unos minutos antes de volver a intentar.');
+          break;
+        case 'auth/operation-not-allowed':
+          toast.error('El registro con correo está deshabilitado. Contactá al administrador.');
+          break;
+        default:
+          toast.error('Hubo un error al crear tu cuenta. Verificá tu conexión e intentá de nuevo.');
       }
     } finally {
       setLoading(false);
@@ -91,10 +111,19 @@ export default function Register() {
     try {
       setLoading(true);
       await loginWithGoogle();
+      // Si el perfil está incompleto, ProtectedRoute lo manda a /complete-profile.
       navigate('/explore');
     } catch (err: any) {
       console.error(err);
-      toast.error('No se pudo continuar con Google.');
+      if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') {
+        toast.error('Cancelaste el registro con Google.');
+      } else if (err.code === 'auth/unauthorized-domain') {
+        toast.error('Dominio no autorizado en Firebase. Contactá al administrador.');
+      } else if (err.code === 'auth/network-request-failed') {
+        toast.error('Sin conexión. Verificá tu internet e intentá de nuevo.');
+      } else {
+        toast.error('No se pudo continuar con Google.');
+      }
     } finally {
       setLoading(false);
     }

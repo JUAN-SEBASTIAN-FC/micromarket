@@ -82,6 +82,8 @@ export default function Login() {
         setFieldErrors({ general: 'Correo o contraseña incorrectos.' });
       } else if (err.code === 'auth/too-many-requests') {
         setFieldErrors({ general: 'Demasiados intentos. Tu acceso ha sido limitado temporalmente por seguridad.' });
+      } else if (err.code === 'auth/network-request-failed') {
+        setFieldErrors({ general: 'Sin conexión. Verificá tu internet e intentá de nuevo.' });
       } else {
         setFieldErrors({ general: 'Ocurrió un error al intentar iniciar sesión. Intenta nuevamente.' });
       }
@@ -124,7 +126,16 @@ export default function Login() {
       
       navigate('/explore');
     } catch (err: any) {
-      toast.error('Error al conectar con Google.');
+      console.error(err);
+      if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') {
+        toast.error('Cancelaste el inicio de sesión con Google.');
+      } else if (err.code === 'auth/unauthorized-domain') {
+        toast.error('Dominio no autorizado en Firebase. Contactá al administrador.');
+      } else if (err.code === 'auth/network-request-failed') {
+        toast.error('Sin conexión. Verificá tu internet e intentá de nuevo.');
+      } else {
+        toast.error('Error al conectar con Google.');
+      }
     } finally {
       setLoading(false);
     }

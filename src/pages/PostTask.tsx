@@ -27,7 +27,8 @@ export default function PostTask() {
   const navigate = useNavigate();
   const { id } = useParams();
   const [step, setStep] = React.useState(1);
-  const [loading, setLoading] = useState(false);
+  // Guard síncrono para evitar doble envío al publicar/editar una tarea.
+  const isSubmittingRef = React.useRef(false);
   const {
     error: enterpriseError,
     loading: validationLoading,
@@ -176,13 +177,22 @@ export default function PostTask() {
 
   const handleFinalSubmit = async () => {
     if (isPending) return;
-    
+
+    // Guard síncrono contra doble envío: un doble click dispara este handler
+    // dos veces antes de que React re-renderice el botón deshabilitado, lo que
+    // creaba la misma tarea por duplicado. El ref se actualiza de inmediato.
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
+
     clearEnterpriseError();
     const allowedCategories = categories.map(c => c.name.toLowerCase());
-    
+
     // Validar usando el motor enterprise
     const isValid = validateEnterprise(validatePostTaskEnterprise, formData, allowedCategories);
-    if (!isValid) return;
+    if (!isValid) {
+      isSubmittingRef.current = false;
+      return;
+    }
 
     const taskData = {
       title: sanitizeText(formData.title, 200),
@@ -201,17 +211,22 @@ export default function PostTask() {
       }
     };
 
-    await executeSafeEnterprise(async () => {
-      if (id) {
-        await updateTask(id, taskData);
-        toast.success("Tarea actualizada con éxito.");
-        navigate(`/tasks/${id}`);
-      } else {
-        await createTask(taskData);
-        toast.success("¡Tarea publicada con éxito!");
-        navigate('/explore');
-      }
-    }, 'Publicación de Tarea');
+    try {
+      await executeSafeEnterprise(async () => {
+        if (id) {
+          await updateTask(id, taskData);
+          toast.success("Tarea actualizada con éxito.");
+          navigate(`/tasks/${id}`);
+        } else {
+          await createTask(taskData);
+          toast.success("¡Tarea publicada con éxito!");
+          navigate('/explore');
+        }
+      }, 'Publicación de Tarea');
+    } finally {
+      // Liberar el guard solo si seguimos en la página (si navegó, no importa).
+      isSubmittingRef.current = false;
+    }
   };
 
   if (isPending) {
@@ -469,10 +484,10 @@ export default function PostTask() {
 
             <button
               onClick={step === 3 ? handleFinalSubmit : nextStep}
-              disabled={loading}
-              className="h-16 px-16 rounded-2xl bg-indigo-600 text-white font-bold text-sm shadow-2xl shadow-indigo-600/30 hover:bg-indigo-500 hover:-translate-y-1 transition-all flex items-center gap-4 active:scale-95 disabled:opacity-50"
+              disabled={validationLoading}
+              className="h-16 px-16 rounded-2xl bg-indigo-600 text-white font-bold text-sm shadow-2xl shadow-indigo-600/30 hover:bg-indigo-500 hover:-translate-y-1 transition-all flex items-center gap-4 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
             >
-              {loading ? (
+              {validationLoading ? (
                 <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1 }} className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full" />
               ) : (
                 <>

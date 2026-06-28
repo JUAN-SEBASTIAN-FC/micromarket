@@ -1,22 +1,22 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'motion/react';
-import { User, Image as ImageIcon, FileText, UploadCloud, ArrowRight, CheckCircle2, X, XCircle, ShieldCheck } from 'lucide-react';
+import { motion } from 'motion/react';
+import { User, Image as ImageIcon, FileText, UploadCloud, ArrowRight, X, ShieldCheck } from 'lucide-react';
 import { useAuth, UserProfile } from '../contexts/AuthContext';
 import { uploadFile } from '../services/storage';
 import { toast } from 'sonner';
-import { isValidDNI, isValidPhone, sanitizeText, validateProfileEnterprise, EnterpriseValidationError } from '../lib/validation';
+import { sanitizeText, validateProfileEnterprise, EnterpriseValidationError } from '../lib/validation';
 import { useValidationEngine } from '../contexts/useValidationEngine';
 import EnterpriseErrorAlert from '../components/EnterpriseErrorAlert';
 
 export default function CompleteProfile() {
   const { user, profile, completeUserProfile, logout } = useAuth();
   const navigate = useNavigate();
+  const isAdmin = profile?.role === 'admin';
   const {
     error: enterpriseError,
     loading: validationLoading,
     clearError: clearEnterpriseError,
-    setError: setEnterpriseError,
     validate: validateEnterprise,
     executeSafe: executeSafeEnterprise
   } = useValidationEngine();
@@ -36,48 +36,14 @@ export default function CompleteProfile() {
   }, [profile?.name]);
   const [certFiles, setCertFiles] = useState<File[]>([]);
   const [docFiles, setDocFiles] = useState<File[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
 
   // Redirect if not incomplete
   React.useEffect(() => {
     if (profile && profile.status !== 'incomplete') {
-      navigate(profile.role === 'admin' ? '/admin/metrics' : '/explore');
+      navigate(isAdmin ? '/admin/metrics' : '/explore');
     }
   }, [profile, navigate]);
-
-  // ✅ Validación profesional de campos
-  const validateFields = () => {
-    const errors: { [key: string]: string } = {};
-    
-    // Validar nombre
-    if (!name.trim()) {
-      errors.name = 'El nombre es obligatorio.';
-    } else if (name.trim().length < 3) {
-      errors.name = 'El nombre debe tener al menos 3 caracteres.';
-    } else if (name.trim().length > 100) {
-      errors.name = 'El nombre no puede exceder 100 caracteres.';
-    }
-
-    // Validar DNI y teléfono solo para usuarios normales
-    if (profile?.role !== 'admin') {
-      if (!dni.trim()) {
-        errors.dni = 'El DNI es obligatorio.';
-      } else if (!isValidDNI(dni)) {
-        errors.dni = 'DNI debe ser 6-12 dígitos válidos.';
-      }
-
-      if (!phone.trim()) {
-        errors.phone = 'El teléfono es obligatorio.';
-      } else if (!isValidPhone(phone)) {
-        errors.phone = 'Teléfono debe ser 7-15 dígitos válidos.';
-      }
-    }
-
-    setFieldErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -99,17 +65,18 @@ export default function CompleteProfile() {
       }
     };
 
-    // Validar usando el motor enterprise
+    // Validar usando el motor enterprise. Para admin la validación es ligera
+    // (solo nombre), por lo que el resto de campos no necesitan valores ficticios.
     const validationData = {
       name,
-      dni: profile?.role === 'admin' ? '12345678' : dni, // Bypass DNI para admins en la validación común
-      phone: profile?.role === 'admin' ? '+1234567890' : phone, // Bypass Phone para admins
+      dni,
+      phone,
       bio,
       skills: tags,
       photoUrl: photoFile ? 'file-uploading' : (profile?.photoUrl || '')
     };
 
-    const isValid = validateEnterprise(validateProfileEnterprise, validationData);
+    const isValid = validateEnterprise(validateProfileEnterprise, validationData, isAdmin);
     if (!isValid) return;
 
     await executeSafeEnterprise(async () => {
@@ -176,6 +143,14 @@ export default function CompleteProfile() {
         documents: uploadedDocs
       };
 
+      // El admin tiene perfil ligero: no arrastrar campos KYC vacíos.
+      if (isAdmin) {
+        delete updates.dni;
+        delete updates.phone;
+        delete updates.certificates;
+        delete updates.documents;
+      }
+
       const totalSizeEstimate = JSON.stringify(updates).length;
       if (totalSizeEstimate > 900000) {
         throw new EnterpriseValidationError(
@@ -186,7 +161,7 @@ export default function CompleteProfile() {
 
       await completeUserProfile(updates);
       toast.success('¡Perfil guardado con éxito!');
-      navigate(profile?.role === 'admin' ? '/admin/metrics' : '/explore');
+      navigate(isAdmin ? '/admin/metrics' : '/explore');
     }, 'Completar Perfil');
   };
 
@@ -213,13 +188,17 @@ export default function CompleteProfile() {
             Completa tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">perfil</span>
           </h1>
           <p className="text-slate-400 font-medium max-w-md mx-auto text-sm leading-relaxed mb-4">
-            Personaliza tu identidad en la plataforma para empezar a colaborar con la comunidad.
+            {isAdmin
+              ? 'Confirmá tu nombre para activar tu acceso de administrador.'
+              : 'Personaliza tu identidad en la plataforma para empezar a colaborar con la comunidad.'}
           </p>
-          <div className="inline-block bg-orange-500/10 border border-orange-500/20 rounded-xl px-4 py-2">
-            <p className="text-[11px] text-orange-400 font-medium">
-              ⚠️ Importante: El peso total de tu perfil (foto + documentos) no puede superar los 900KB.
-            </p>
-          </div>
+          {!isAdmin && (
+            <div className="inline-block bg-orange-500/10 border border-orange-500/20 rounded-xl px-4 py-2">
+              <p className="text-[11px] text-orange-400 font-medium">
+                ⚠️ Importante: El peso total de tu perfil (foto + documentos) no puede superar los 900KB.
+              </p>
+            </div>
+          )}
         </div>
 
         <EnterpriseErrorAlert error={enterpriseError} onClose={clearEnterpriseError} />
@@ -276,7 +255,7 @@ export default function CompleteProfile() {
               )}
             </div>
 
-            {profile?.role !== 'admin' && (
+            {!isAdmin && (
               <>
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-slate-500 uppercase tracking-[2px] ml-1">DNI / Identificación</label>
@@ -361,7 +340,7 @@ export default function CompleteProfile() {
             </div>
           </div>
 
-          {profile?.role !== 'admin' && (
+          {!isAdmin && (
             <div className="space-y-6">
               <div className="h-px bg-white/10 w-full my-8" />
               
@@ -423,13 +402,13 @@ export default function CompleteProfile() {
             >
               Cerrar Sesión
             </button>
-            <button 
+            <button
               type="submit"
-              disabled={loading}
+              disabled={validationLoading}
               className="flex-[2] h-14 bg-indigo-600 text-white rounded-2xl font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-indigo-500 shadow-xl shadow-indigo-500/20 transition-all active:scale-95 disabled:opacity-50"
             >
-              {loading ? 'Guardando...' : 'Finalizar Registro'}
-              {!loading && <ArrowRight className="w-4 h-4" />}
+              {validationLoading ? 'Guardando...' : 'Finalizar Registro'}
+              {!validationLoading && <ArrowRight className="w-4 h-4" />}
             </button>
           </div>
         </form>

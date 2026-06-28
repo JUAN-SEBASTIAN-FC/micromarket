@@ -15,6 +15,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { cn } from '../lib/utils';
 import { Loader } from '../components/Loader';
 import { motion, AnimatePresence } from 'motion/react';
+import { toast } from 'sonner';
 
 export default function TaskDetail() {
   const { id } = useParams();
@@ -41,8 +42,14 @@ export default function TaskDetail() {
   const handleDelete = async () => {
     if (!task || !id) return;
     if (window.confirm('¿Eliminar esta tarea de forma permanente?')) {
-      await deleteTask(id);
-      navigate('/explore');
+      try {
+        await deleteTask(id);
+        toast.success('Tarea eliminada.');
+        navigate('/explore');
+      } catch (error) {
+        console.error("Error deleting task:", error);
+        toast.error('No se pudo eliminar la tarea. Intentá de nuevo.');
+      }
     }
   };
 
@@ -50,10 +57,17 @@ export default function TaskDetail() {
     if (!task || !id || !task.assignedTo) return;
     if (window.confirm('¿Confirmas que la tarea ha sido completada satisfactoriamente? Se liberará el pago.')) {
       setLoading(true);
-      await completeTask(id, task.assignedTo);
-      const updated = await fetchTaskById(id);
-      setTask(updated);
-      setLoading(false);
+      try {
+        await completeTask(id, task.assignedTo);
+        const updated = await fetchTaskById(id);
+        setTask(updated);
+        toast.success('Tarea marcada como completada. El pago será procesado.');
+      } catch (error) {
+        console.error("Error completing task:", error);
+        toast.error('No se pudo completar la tarea. Intentá de nuevo.');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -103,7 +117,7 @@ export default function TaskDetail() {
       setShowSuccessModal(true);
     } catch (error) {
       console.error("Error creating chat:", error);
-      alert("Hubo un error al iniciar el chat. Por favor intente de nuevo.");
+      toast.error("Hubo un error al iniciar el chat. Por favor, intentá de nuevo.");
     } finally {
       setIsAccepting(false);
     }

@@ -427,6 +427,11 @@ export const validatePostTaskEnterprise = (
 
 /**
  * Valida los datos del perfil del operador bajo el estándar enterprise.
+ *
+ * @param isAdmin Si es true, aplica una validación ligera: SOLO se exige el
+ *   nombre. Los administradores no pasan por el proceso KYC (foto, DNI,
+ *   teléfono, biografía, habilidades) porque su acceso se gestiona por
+ *   promoción manual y no requieren verificación de identidad de operador.
  */
 export const validateProfileEnterprise = (
   formData: {
@@ -436,8 +441,31 @@ export const validateProfileEnterprise = (
     bio: string;
     skills: string[];
     photoUrl?: string;
-  }
+  },
+  isAdmin: boolean = false
 ): EnterpriseErrorResponse | null => {
+  // Validación ligera para administradores: solo el nombre es obligatorio.
+  if (isAdmin) {
+    const adminName = formData.name.trim();
+    if (!adminName) {
+      return {
+        status: 'fail',
+        source: 'Nombre Completo',
+        message: 'Falta el nombre del administrador. Introducí tu nombre para identificarte en el panel de gestión.',
+        actionable: true
+      };
+    }
+    if (adminName.length < 3) {
+      return {
+        status: 'fail',
+        source: 'Nombre Completo',
+        message: `El nombre ingresado ("${adminName}") es demasiado corto. Debe poseer al menos 3 caracteres.`,
+        actionable: true
+      };
+    }
+    return null;
+  }
+
   // 1. Validar Foto de Perfil
   if (!formData.photoUrl || formData.photoUrl.trim() === '' || formData.photoUrl.includes('ui-avatars.com')) {
     return {
